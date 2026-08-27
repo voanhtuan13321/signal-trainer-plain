@@ -1,0 +1,124 @@
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section-enter {
+  animation: section-enter 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav a,
+.card,
+.button,
+.tab,
+.option,
+.field select {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease,
+    filter 180ms ease;
+}
+
+.card:hover,
+.button:hover,
+.option:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.nav a:active,
+.button:active,
+.tab:active,
+.option:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  box-shadow:
+    var(--inner-glow),
+    var(--shadow-hover),
+    0 0 32px rgba(123, 77, 255, 0.12);
+}
+
+.button:hover {
+  box-shadow:
+    0 14px 28px var(--primary-glow),
+    0 0 30px var(--secondary-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  filter: brightness(1.05);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+  filter: none;
+}
+
+.button--secondary:hover,
+.button--ghost:hover {
+  box-shadow: var(--inner-glow), var(--shadow-hover);
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  box-shadow:
+    var(--inner-glow),
+    var(--shadow-hover),
+    0 0 22px rgba(123, 77, 255, 0.12);
+}
+
+.tab.is-active,
+.tab:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--border-strong),
+    0 10px 20px rgba(123, 77, 255, 0.18);
+}
+
+.tab-panel {
+  animation: section-enter 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .section-enter,
+  .tab-panel {
+    animation: none;
+  }
+
+  .nav a,
+  .card,
+  .button,
+  .tab,
+  .option,
+  .field select {
+    transition: none;
+  }
+}

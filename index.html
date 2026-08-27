@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Signal Trainer - học và luyện Morse Code và Flag Semaphore."
+  />
+  <title>Signal Trainer</title>
+
+  <!-- CSS thuần: mở trực tiếp bằng file:// vẫn hoạt động. -->
+  <link rel="stylesheet" href="./styles/base.css" />
+  <link rel="stylesheet" href="./styles/layout.css" />
+  <link rel="stylesheet" href="./styles/components.css" />
+  <link rel="stylesheet" href="./styles/animations.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar__row">
+        <a class="brand" href="#/">
+          <span class="brand__mark">ST</span>
+
+          <span>
+            <strong>Signal Trainer</strong>
+            <small>Morse & Semaphore</small>
+          </span>
+        </a>
+      </div>
+
+      <nav class="nav" aria-label="Điều hướng chính">
+        <a href="#/" data-nav="/">Trang chủ</a>
+        <a href="#/learn" data-nav="/learn">Học</a>
+        <a href="#/practice" data-nav="/practice">Luyện tập</a>
+      </nav>
+    </header>
+
+    <!-- JavaScript sẽ render từng màn hình vào đây. -->
+    <main id="app" class="main" tabindex="-1"></main>
+
+  </div>
+  <script src="./scripts/data.js"></script>
+  <script src="./scripts/morse-audio.js"></script>
+  <script src="./scripts/semaphore.js"></script>
+  <script src="./scripts/views.js"></script>
+  <script src="./scripts/router.js"></script>
+  <script src="./scripts/app.js"></script>
+</body>
+</html>
