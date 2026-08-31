@@ -38,10 +38,18 @@ Because this is a plain static site, you can:
 ```bash
 git add .
 git commit -m "release: v0.1.0"
-git tag v0.1.0
+git tag signal-trainer-plain-v0.1.0
 git push origin main
-git push origin v0.1.0
+git push origin signal-trainer-plain-v0.1.0
 ```
+
+## Tag Format
+
+Use this release tag format:
+
+- `signal-trainer-plain-v0.1.0`
+
+This keeps the project name and version together so release tags stay unambiguous.
 
 ## Release Notes Format
 

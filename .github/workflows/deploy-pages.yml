@@ -1,0 +1,48 @@
+name: "🚀 Deploy Pages on Tag"
+
+on:
+  # Only publish when a project-version tag is pushed.
+  push:
+    tags:
+      - "signal-trainer-plain-v*"
+  # Allow manual redeploy from the Actions tab when needed.
+  workflow_dispatch:
+
+permissions:
+  # Minimum permissions required for GitHub Pages deployment.
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  # Prevent overlapping Pages deploys for the same site.
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: "📦 Build Pages Artifact"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "📥 Checkout Source"
+        uses: actions/checkout@v6
+
+      - name: "⚙️ Setup GitHub Pages"
+        uses: actions/configure-pages@v5
+
+      - name: "🗂️ Upload Pages Artifact"
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+  deploy:
+    name: "🌍 Deploy to GitHub Pages"
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: "🚢 Publish Site"
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -13,7 +13,7 @@
 
 - Run `git status`
 - Commit release files with a message like `release: v0.1.0`
-- Create a tag like `v0.1.0`
+- Create a tag like `signal-trainer-plain-v0.1.0`
 - Push `main`
 - Push the tag
 
