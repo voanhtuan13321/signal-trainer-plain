@@ -47,6 +47,13 @@
     }
   });
 
+  var APP_META = {
+    version: "0.1.0",
+    releaseDate: "2026-08-31",
+    site:
+      "https://voanhtuan13321.github.io/signal-trainer-plain/"
+  };
+
   var SEMAPHORE_CODE = {
     A: { left: 225, right: 180 },
     B: { left: 270, right: 180 },
@@ -84,6 +91,7 @@
 
   window.SignalTrainer = window.SignalTrainer || {};
   window.SignalTrainer.data = {
+    APP_META: APP_META,
     MORSE_CODE: MORSE_CODE,
     MORSE_LETTERS: MORSE_LETTERS,
     SEMAPHORE_CODE: SEMAPHORE_CODE,

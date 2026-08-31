@@ -1,0 +1,22 @@
+changelog:
+  categories:
+    - title: Added
+      labels:
+        - feature
+        - enhancement
+    - title: Changed
+      labels:
+        - ui
+        - refactor
+        - chore
+    - title: Fixed
+      labels:
+        - fix
+        - bug
+        - regression
+    - title: Docs
+      labels:
+        - docs
+    - title: Other
+      labels:
+        - "*"

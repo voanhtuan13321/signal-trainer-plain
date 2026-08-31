@@ -2,6 +2,7 @@
   "use strict";
 
   var namespace = window.SignalTrainer || {};
+  var APP_META = namespace.data.APP_META;
   var MORSE_CODE = namespace.data.MORSE_CODE;
   var MORSE_LETTERS = namespace.data.MORSE_LETTERS;
   var SEMAPHORE_CODE = namespace.data.SEMAPHORE_CODE;
@@ -105,6 +106,12 @@
       '<div class="actions actions--stack">',
       '<a class="button" href="#/practice">Vào luyện tập</a>',
       '<a class="button button--secondary" href="#/learn">Xem bảng tín hiệu</a>',
+      "</div>",
+      '<div class="release-chip">',
+      "v",
+      APP_META.version,
+      " · ",
+      APP_META.releaseDate,
       "</div>",
       "</div>",
       "</section>"

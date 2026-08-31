@@ -124,6 +124,23 @@
   width: 100%;
 }
 
+.release-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: var(--space-4);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 150%),
+    rgba(255, 255, 255, 0.56);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .button {
   display: inline-flex;
   min-height: 46px;
