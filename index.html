@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi" data-theme="light">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,8 +8,9 @@
     content="Signal Trainer - học và luyện Morse Code và Flag Semaphore."
   />
   <title>Signal Trainer</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
 
-  <!-- CSS thuần: mở trực tiếp bằng file:// vẫn hoạt động. -->
+  <!-- CSS stays framework-free so GitHub Pages can serve the app as plain files. -->
   <link rel="stylesheet" href="./styles/base.css" />
   <link rel="stylesheet" href="./styles/layout.css" />
   <link rel="stylesheet" href="./styles/components.css" />
@@ -37,15 +38,10 @@
       </nav>
     </header>
 
-    <!-- JavaScript sẽ render từng màn hình vào đây. -->
+    <!-- ES modules render the active hash route into this mount point. -->
     <main id="app" class="main" tabindex="-1"></main>
 
   </div>
-  <script src="./scripts/data.js"></script>
-  <script src="./scripts/morse-audio.js"></script>
-  <script src="./scripts/semaphore.js"></script>
-  <script src="./scripts/views.js"></script>
-  <script src="./scripts/router.js"></script>
-  <script src="./scripts/app.js"></script>
+  <script type="module" src="./src/core/app.js"></script>
 </body>
 </html>

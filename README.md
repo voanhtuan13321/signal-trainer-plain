@@ -10,23 +10,31 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 
 - `index.html`: app shell
 - `styles/`: split CSS files
-- `scripts/`: split JavaScript files
-- `assets/semaphore/`: per-letter Semaphore images
-- `scripts/data.js`: current app metadata and static dictionaries
+- `src/core/`: app bootstrap and router
+- `src/data/`: current app metadata and static signal dictionaries
+- `src/audio/`: Morse Web Audio playback
+- `src/features/`: screen-level feature modules
+- `src/ui/`: shared rendering and quiz helpers
+- `public/assets/semaphore/`: per-letter Semaphore images
 - `version.json`: current release version metadata
 - `CHANGELOG.md`: release history
 
 ## Local Run
 
-Because this is a plain static site, you can:
+GitHub Pages supports native ES modules, so the production site can stay build-free.
+For local development, serve the folder over HTTP because browsers restrict ES module
+imports opened through `file://`.
 
-1. Open `index.html` directly, or
-2. Serve the folder with any static server
+```bash
+node scripts/dev-server.mjs
+```
+
+Then open [http://localhost:8000](http://localhost:8000).
 
 ## Release Workflow
 
 1. Update `version.json`
-2. Update `scripts/data.js` app metadata so the in-app version matches the release
+2. Update `src/data/signals.js` app metadata so the in-app version matches the release
 3. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
 4. Commit the release changes
 5. Create and push a git tag
@@ -61,7 +69,7 @@ Use this short structure:
 
 ## Release Checklist
 
-See [scripts/release-checklist.md](D:\workspace\projects\signal-trainer-plain\scripts\release-checklist.md) for the step-by-step checklist before tagging a release.
+See [docs/release-checklist.md](docs/release-checklist.md) for the step-by-step checklist before tagging a release.
 
 ## Versioning
 
