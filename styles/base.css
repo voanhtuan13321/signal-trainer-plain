@@ -45,10 +45,14 @@ html {
   background: var(--bg);
 }
 
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   min-height: 100vh;
   margin: 0;
-  padding-bottom: 92px;
   color: var(--text);
   background:
     radial-gradient(circle at 20% 0%, var(--bg-accent), transparent 26rem),

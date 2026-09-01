@@ -28,6 +28,13 @@ export function createRouter(app) {
     const path = rawHash.split("?")[0];
     const render = routes[path] || (() => renderNotFound(app));
 
+    // Route state belongs on body so layout rules can react without rebuilding
+    // the persistent header and navigation markup.
+    document.body.classList.remove("route-home", "route-learn", "route-practice");
+    document.body.classList.add(
+      path === "/" ? "route-home" : `route-${path.slice(1) || "not-found"}`,
+    );
+
     render();
 
     document.querySelectorAll("[data-nav]").forEach((link) => {
@@ -39,7 +46,11 @@ export function createRouter(app) {
     void app.offsetWidth;
     app.classList.add("page-enter");
 
-    window.scrollTo(0, 0);
+    // Mobile Safari may keep the scroll offset on both scrolling roots. Reset
+    // both explicitly so the persistent header is never left above the viewport.
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
   return { renderRoute };

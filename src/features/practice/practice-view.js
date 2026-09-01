@@ -148,14 +148,24 @@ export function renderPractice(app) {
     draw();
   }
 
+  /**
+   * Attempt to play a newly rendered Morse prompt without blocking the UI.
+   * Browsers may reject this before the first user gesture; that is expected.
+   */
   function autoPlayQuestion() {
     if (state.mode !== "morse") {
       return;
     }
 
-    // Let the browser finish painting the new prompt before starting audio.
-    window.setTimeout(() => {
-      playMorseCharacter(state.question.prompt).catch(() => {});
+    window.setTimeout(async () => {
+      try {
+        await playMorseCharacter(state.question.prompt);
+      } catch (error) {
+        console.info(
+          "Morse audio chưa thể tự phát. Hãy chạm nút Nghe hoặc nhấn Space để phát.",
+          error,
+        );
+      }
     }, 0);
   }
 
