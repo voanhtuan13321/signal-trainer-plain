@@ -5,7 +5,7 @@
 - Confirm the app opens and the main flows still work
 - Check GitHub Pages link still loads
 - Update `version.json`
-- Update `scripts/data.js` app metadata
+- Update `src/data/signals.js` app metadata
 - Move notes from `Unreleased` to a new version block in `CHANGELOG.md`
 - Review `README.md` if setup or links changed
 
