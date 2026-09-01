@@ -55,8 +55,8 @@ export const MORSE_LETTERS = Object.fromEntries(
  * Keep this in sync with version.json during release prep.
  */
 export const APP_META = {
-  version: "0.1.0",
-  releaseDate: "2026-08-31",
+  version: "0.2.0",
+  releaseDate: "2026-09-01",
   site: "https://voanhtuan13321.github.io/signal-trainer-plain/"
 };
 
