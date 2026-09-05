@@ -1,0 +1,8 @@
+{
+  "name": "signal-trainer-plain",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

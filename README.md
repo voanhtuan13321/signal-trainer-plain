@@ -10,13 +10,18 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 
 - `index.html`: app shell
 - `styles/`: split CSS files
-- `src/core/`: app bootstrap and router
-- `src/data/`: current app metadata and static signal dictionaries
-- `src/audio/`: Morse Web Audio playback
-- `src/features/`: screen-level feature modules
-- `src/ui/`: shared rendering and quiz helpers
-- `public/assets/semaphore/`: per-letter Semaphore images
-- `version.json`: current release version metadata
+- `src/main.js`: application entry point
+- `src/app/`: router and application-level setup
+- `src/pages/`: route-level screens (`HomePage`, `LearnPage`, `PracticePage`)
+- `src/pages/UpdatesPage.js`: version changelog screen at `#/updates`
+- `src/pages/AdvancedPracticePage.js`: timed high-speed practice, opened from the regular Practice page
+- `src/components/`: UI grouped into `common`, `learn`, `practice`, and `updates`
+- `src/lib/`: framework-independent quiz logic
+- `src/data/`: domain data split into `app-meta.js`, `morse.js`, and `semaphore.js`
+- `src/services/`: browser services such as Morse Web Audio playback
+- `src/lib/semaphore-svg.js`: vector Semaphore renderer
+- `tests/`: Node.js built-in tests for framework-independent logic
+- `src/data/app-meta.js`: current release version metadata
 - `CHANGELOG.md`: release history
 
 ## Local Run
@@ -31,11 +36,11 @@ node scripts/dev-server.mjs
 
 Then open [http://localhost:8000](http://localhost:8000).
 
+
 ## Release Workflow
 
-1. Update `version.json`
-2. Update `src/data/signals.js` app metadata so the in-app version matches the release
-3. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
+1. Update `src/data/app-meta.js` with the new version and release date
+2. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
 4. Commit the release changes
 5. Create and push a git tag
 6. Create a GitHub Release using the changelog content
