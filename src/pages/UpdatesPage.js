@@ -1,5 +1,6 @@
 import { renderReleaseTimeline } from "../components/updates/ReleaseTimeline.js";
 import { fetchChangelog } from "../lib/changelog.js";
+import { escapeHtml } from "../lib/escape-html.js";
 
 export function renderUpdates(app) {
   app.innerHTML = `
@@ -24,6 +25,6 @@ export function renderUpdates(app) {
         : "<p>Chưa có thông tin cập nhật.</p>";
     })
     .catch((error) => {
-      app.querySelector(".release-list").innerHTML = `<p class="feedback feedback--danger">${error.message}</p>`;
+      app.querySelector(".release-list").innerHTML = `<p class="feedback feedback--danger">${escapeHtml(error.message)}</p>`;
     });
 }

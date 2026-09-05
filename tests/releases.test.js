@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseChangelog } from "../src/lib/changelog.js";
+import { fetchChangelog, parseChangelog } from "../src/lib/changelog.js";
 import { renderVersionBadge } from "../src/components/updates/VersionBadge.js";
 import { renderReleaseCard } from "../src/components/updates/ReleaseCard.js";
 import { renderReleaseTimeline } from "../src/components/updates/ReleaseTimeline.js";
@@ -24,8 +24,31 @@ test("release card renders change groups", () => {
   assert.match(html, /Sửa lỗi/);
 });
 
+test("release card escapes changelog content", () => {
+  const html = renderReleaseCard({ version: "0.2.0", date: "2026-09-01", changes: { added: ["<script>alert(1)</script>"] } });
+  assert.doesNotMatch(html, /<script>/);
+  assert.match(html, /&lt;script&gt;/);
+});
+
 test("release timeline wraps releases in timeline items", () => {
   const html = renderReleaseTimeline([{ version: "0.2.0", date: "2026-09-01", changes: {} }]);
   assert.match(html, /release-timeline/);
   assert.match(html, /release-timeline__item/);
+});
+
+test("fetchChangelog keeps cache entries separate by URL", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url) => {
+    calls.push(url);
+    return { ok: true, text: async () => `## [0.0.${calls.length}] - 2026-09-0${calls.length}` };
+  };
+  try {
+    await fetchChangelog("/one.md");
+    await fetchChangelog("/one.md");
+    await fetchChangelog("/two.md");
+    assert.deepEqual(calls, ["/one.md", "/two.md"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

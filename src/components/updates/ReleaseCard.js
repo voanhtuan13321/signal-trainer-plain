@@ -1,3 +1,5 @@
+import { escapeHtml } from "../../lib/escape-html.js";
+
 const CHANGE_LABELS = {
   added: "Thêm",
   changed: "Thay đổi",
@@ -12,8 +14,8 @@ export function renderReleaseCard(release) {
     .filter(([, items]) => items.length > 0)
     .map(([key, items]) => `
       <section class="release-group">
-        <h3>${CHANGE_LABELS[key] || key}</h3>
-        <ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>
+        <h3>${escapeHtml(CHANGE_LABELS[key] || key)}</h3>
+        <ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
       </section>
     `.trim())
     .join("");
@@ -21,8 +23,8 @@ export function renderReleaseCard(release) {
   return `
     <article class="card release-card">
       <div class="release-card__header">
-        <h2>v${release.version}</h2>
-        <time datetime="${release.date}">${release.date}</time>
+        <h2>v${escapeHtml(release.version)}</h2>
+        <time datetime="${escapeHtml(release.date)}">${escapeHtml(release.date)}</time>
       </div>
       ${groups}
     </article>

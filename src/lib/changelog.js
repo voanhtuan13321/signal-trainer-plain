@@ -35,8 +35,21 @@ export function parseChangelog(markdown) {
  * @param {string} url - The URL to fetch the changelog from.
  * @returns {Promise<Array>} A promise that resolves to an array of release objects.
  */
+const changelogPromises = new Map();
+
 export async function fetchChangelog(url = "./CHANGELOG.md") {
-  const response = await fetch(url, { cache: "no-cache" });
-  if (!response.ok) throw new Error("Không thể tải lịch sử cập nhật.");
-  return parseChangelog(await response.text());
+  if (!changelogPromises.has(url)) {
+    const promise = fetch(url, { cache: "no-cache" })
+      .then((response) => {
+        if (!response.ok) throw new Error("Không thể tải lịch sử cập nhật.");
+        return response.text();
+      })
+      .then(parseChangelog)
+      .catch((error) => {
+        changelogPromises.delete(url);
+        throw error;
+      });
+    changelogPromises.set(url, promise);
+  }
+  return changelogPromises.get(url);
 }

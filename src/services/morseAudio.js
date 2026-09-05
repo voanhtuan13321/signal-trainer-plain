@@ -1,4 +1,6 @@
 let audioContext = null;
+let activeOscillators = new Set();
+let playbackId = 0;
 
 // 16 WPM keeps training audio clear while still feeling close to real Morse.
 const MORSE_WPM = 16;
@@ -62,11 +64,23 @@ function beep(durationMs) {
 
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
+    activeOscillators.add(oscillator);
 
     oscillator.start(now);
     oscillator.stop(now + durationSeconds);
-    oscillator.addEventListener("ended", resolve, { once: true });
+    oscillator.addEventListener("ended", () => {
+      activeOscillators.delete(oscillator);
+      resolve();
+    }, { once: true });
   });
+}
+
+export function cancelMorseAudio() {
+  playbackId += 1;
+  for (const oscillator of activeOscillators) {
+    try { oscillator.stop(); } catch {}
+  }
+  activeOscillators.clear();
 }
 
 function sleep(ms) {
@@ -82,15 +96,19 @@ function sleep(ms) {
  * @returns {Promise<void>} Resolves after all symbols and intra-character gaps.
  */
 export async function playMorseCharacter(code) {
+  const currentPlaybackId = ++playbackId;
   await ensureAudioContext();
 
   const symbols = code.split("");
   for (let index = 0; index < symbols.length; index += 1) {
+    if (currentPlaybackId !== playbackId) return;
     const durationUnits = symbols[index] === "." ? 1 : 3;
 
     await beep(durationUnits * getMorseUnitMs());
+    if (currentPlaybackId !== playbackId) return;
     if (index < symbols.length - 1) {
       await sleep(getMorseUnitMs());
+      if (currentPlaybackId !== playbackId) return;
     }
   }
 }

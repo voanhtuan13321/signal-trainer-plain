@@ -17,6 +17,14 @@ test("renderTabs marks the active item and exposes its value", () => {
   const html = renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: "semaphore" });
   assert.match(html, /data-tab="semaphore"/);
   assert.match(html, /class="tab is-active"/);
+  assert.match(html, /role="tablist"/);
+  assert.match(html, /role="tab"/);
+  assert.match(html, /aria-selected="true"/);
+});
+
+test("shared renderers escape interpolated text", () => {
+  assert.doesNotMatch(renderButton({ label: "<img>" }), /<img>/);
+  assert.match(renderQuizOption({ value: '" onmouseover="bad' }), /data-answer="&quot; onmouseover=&quot;bad"/);
 });
 
 test("renderSignalCard composes a signal card", () => {

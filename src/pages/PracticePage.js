@@ -1,6 +1,6 @@
 import { MORSE_LETTERS } from "../data/morse.js";
 import { SEMAPHORE_CODE } from "../data/semaphore.js";
-import { playMorseCharacter } from "../services/morseAudio.js";
+import { cancelMorseAudio, playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
 import { createChoiceQuestion, isCorrectAnswer } from "../lib/quiz.js";
 import { renderTabs } from "../components/common/Tabs.js";
@@ -76,6 +76,7 @@ export function renderPractice(app) {
   let autoPlayTimer = null;
 
   currentPracticeCleanup = () => {
+    cancelMorseAudio();
     cleanupPracticeKeyboardHandler();
     if (state.autoAdvanceTimer) {
       window.clearTimeout(state.autoAdvanceTimer);
@@ -185,7 +186,7 @@ export function renderPractice(app) {
         await playMorseCharacter(state.question.prompt);
       } catch (error) {
         console.info(
-          "Morse audio chưa thể tự phát. Hãy chạm nút Nghe hoặc nhấn Space để phát.",
+            "Morse audio chưa thể tự phát. Bạn có thể dùng nút Nghe hoặc phím Space để phát.",
           error,
         );
       }
@@ -273,10 +274,10 @@ export function renderPractice(app) {
           <div class="practice-layout">
             <article class="card quiz">
               <div class="quiz__controls">
-                ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: state.mode, attribute: "data-practice-mode", className: "tabs--compact", containerAttributes: 'role="tablist" aria-label="Chọn chế độ"' })}
+                ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: state.mode, attribute: "data-practice-mode", className: "tabs--compact", panelId: "practice-panel", containerAttributes: 'aria-label="Chọn chế độ"' })}
                 <a class="button button--ghost button--small practice__advanced-link" href="#/advanced-practice">Luyện tập nâng cao</a>
               </div>
-              <div class="quiz__prompt">
+              <div id="practice-panel" class="quiz__prompt" role="tabpanel" aria-labelledby="tab-${state.mode}">
                 <div class="quiz__signal">${renderQuestionPrompt(state)}</div>
                 ${state.mode === "morse" ? renderButton({ label: "Nghe", className: "button--ghost button--small quiz__play", attributes: 'id="play-question"' }) : ""}
               </div>

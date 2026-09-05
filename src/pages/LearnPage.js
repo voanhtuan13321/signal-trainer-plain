@@ -79,9 +79,11 @@ export function renderLearn(app) {
               <h1>Học bảng tín hiệu</h1>
               <p>Chạm để xem nhanh, nghe nhanh rồi quay lại luyện tập.</p>
             </div>
-            ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: activeTab })}
+            ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: activeTab, panelId: "learn-panel", containerAttributes: 'aria-label="Chọn loại tín hiệu"' })}
           </div>
-          ${activeTab === "morse" ? renderMorseGrid() : renderSemaphoreGrid()}
+          <div id="learn-panel" role="tabpanel" aria-labelledby="tab-${activeTab}">
+            ${activeTab === "morse" ? renderMorseGrid() : renderSemaphoreGrid()}
+          </div>
         </div>
       </section>
     `.trim();
@@ -90,6 +92,16 @@ export function renderLearn(app) {
       button.addEventListener("click", () => {
         activeTab = button.getAttribute("data-tab");
         draw();
+      });
+      button.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+        const tabs = [...app.querySelectorAll('[role="tab"]')];
+        const currentIndex = tabs.indexOf(button);
+        const delta = event.key === "ArrowRight" ? 1 : -1;
+        const next = tabs[(currentIndex + delta + tabs.length) % tabs.length];
+        event.preventDefault();
+        next.click();
+        requestAnimationFrame(() => app.querySelector(`[data-tab="${next.getAttribute("data-tab")}"]`)?.focus());
       });
     });
 
