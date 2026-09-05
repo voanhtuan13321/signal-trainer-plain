@@ -6,6 +6,7 @@ import {
 } from "../pages/PracticePage.js";
 import { renderNotFound } from "../pages/NotFoundPage.js";
 import { renderUpdates } from "../pages/UpdatesPage.js";
+import { cleanupAdvancedPractice, renderAdvancedPractice } from "../pages/AdvancedPracticePage.js";
 
 /**
  * Create the hash router for this single-page static app.
@@ -18,13 +19,15 @@ export function createRouter(app) {
     "/": () => renderHome(app),
     "/learn": () => renderLearn(app),
     "/practice": () => renderPractice(app),
-    "/updates": () => renderUpdates(app)
+    "/updates": () => renderUpdates(app),
+    "/advanced-practice": () => renderAdvancedPractice(app)
   };
 
   function renderRoute() {
     // Practice owns a document-level keyboard handler, so route changes must
     // release it before rendering a different screen.
     cleanupPractice();
+    cleanupAdvancedPractice();
 
     const rawHash = window.location.hash.slice(1) || "/";
     const path = rawHash.split("?")[0];

@@ -274,6 +274,7 @@ export function renderPractice(app) {
             <article class="card quiz">
               <div class="quiz__controls">
                 ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: state.mode, attribute: "data-practice-mode", className: "tabs--compact", containerAttributes: 'role="tablist" aria-label="Chọn chế độ"' })}
+                <a class="button button--ghost button--small practice__advanced-link" href="#/advanced-practice">Luyện tập nâng cao</a>
               </div>
               <div class="quiz__prompt">
                 <div class="quiz__signal">${renderQuestionPrompt(state)}</div>
