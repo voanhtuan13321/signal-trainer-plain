@@ -38,6 +38,7 @@ export const MORSE_CODE = {
   9: "----.",
 };
 
+/** A subset of the Morse code mapping that includes only letters A-Z. */
 export const MORSE_LETTERS = Object.fromEntries(
   Object.entries(MORSE_CODE).filter(([character]) => /^[A-Z]$/.test(character))
 );

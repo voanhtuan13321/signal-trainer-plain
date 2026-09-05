@@ -1,3 +1,8 @@
+/**
+ * Parses a changelog markdown string into a structured format.
+ * @param {string} markdown - The changelog markdown content.
+ * @returns {Array} An array of release objects with version, date, and changes.
+ */
 export function parseChangelog(markdown) {
   const releases = [];
   let release = null;
@@ -25,6 +30,11 @@ export function parseChangelog(markdown) {
   return releases;
 }
 
+/**
+ * Fetches the changelog markdown from a given URL and parses it.
+ * @param {string} url - The URL to fetch the changelog from.
+ * @returns {Promise<Array>} A promise that resolves to an array of release objects.
+ */
 export async function fetchChangelog(url = "./CHANGELOG.md") {
   const response = await fetch(url, { cache: "no-cache" });
   if (!response.ok) throw new Error("Không thể tải lịch sử cập nhật.");

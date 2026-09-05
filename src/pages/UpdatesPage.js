@@ -1,4 +1,4 @@
-import { renderReleaseTimeline } from "../components/ReleaseTimeline.js";
+import { renderReleaseTimeline } from "../components/updates/ReleaseTimeline.js";
 import { fetchChangelog } from "../lib/changelog.js";
 
 export function renderUpdates(app) {

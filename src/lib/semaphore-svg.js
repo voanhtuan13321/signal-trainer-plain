@@ -2,6 +2,12 @@ const CENTER = { x: 100, y: 106 };
 const SHOULDERS = { left: { x: 94, y: 62 }, right: { x: 106, y: 62 } };
 const ARM_LENGTH = 59;
 
+/**
+ * Returns a vector representing the direction of an arm based on the side and direction.
+ * @param {string} side - The side of the arm ("left" or "right").
+ * @param {string} direction - The direction of the arm ("up", "down", "out", "high", "low", "across high", "across low").
+ * @returns {Array} An array containing the x and y components of the vector.
+ */
 function vectorFor(side, direction) {
   const across = direction.startsWith("across");
   const outward = side === "left" ? -1 : 1;
@@ -17,18 +23,37 @@ function vectorFor(side, direction) {
   return [across ? -vector[0] : vector[0], vector[1]];
 }
 
+/**
+ * Calculates the end position of an arm based on the side and direction.
+ * @param {string} side - The side of the arm ("left" or "right").
+ * @param {string} direction - The direction of the arm ("up", "down", "out", "high", "low", "across high", "across low").
+ * @returns {Object} An object containing the x and y coordinates of the arm's end position.
+ */
 function armEnd(side, direction) {
   const [x, y] = vectorFor(side, direction);
   const shoulder = SHOULDERS[side];
   return { x: shoulder.x + x * ARM_LENGTH, y: shoulder.y + y * ARM_LENGTH };
 }
 
+/**
+ * Renders the SVG representation of a semaphore flag based on the end position, side, and direction.
+ * @param {Object} end - The end position of the arm (with x and y coordinates).
+ * @param {string} side - The side of the arm ("left" or "right").
+ * @param {string} direction - The direction of the arm ("up", "down", "out", "high", "low", "across high", "across low").
+ * @returns {string} An SVG string representing the semaphore flag.
+ */
 function renderFlag(end, side, direction) {
   const [x, y] = vectorFor(side, direction);
   const angle = Math.atan2(y, x) * (180 / Math.PI);
   return `<g transform="translate(${end.x} ${end.y}) rotate(${angle})"><line class="semaphore-svg__pole" x1="0" y1="0" x2="8" y2="0"/><path class="semaphore-svg__flag semaphore-svg__flag--red" d="M 8 -14 H 36 L 8 14 Z"/><path class="semaphore-svg__flag semaphore-svg__flag--yellow" d="M 8 14 L 36 -14 V 14 Z"/><path class="semaphore-svg__flag-outline" d="M 8 -14 H 36 V 14 H 8 Z"/></g>`;
 }
 
+/**
+ * Renders the SVG representation of a semaphore pose for a given character.
+ * @param {string} character - The character for which to render the pose.
+ * @param {Object} poses - An object mapping characters to their semaphore poses.
+ * @returns {string} An SVG string representing the semaphore pose.
+ */
 export function renderSemaphoreSvg(character, poses) {
   const pose = poses[character];
   if (!pose) return "";

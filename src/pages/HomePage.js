@@ -1,5 +1,5 @@
 import { APP_META } from "../data/app-meta.js";
-import { renderVersionBadge } from "../components/VersionBadge.js";
+import { renderVersionBadge } from "../components/updates/VersionBadge.js";
 
 /**
  * Render the static landing screen. Keeping this as a feature module makes the

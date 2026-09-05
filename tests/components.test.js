@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { renderButton } from "../src/components/Button.js";
-import { renderTabs } from "../src/components/Tabs.js";
-import { renderSignalCard } from "../src/components/SignalCard.js";
-import { renderQuizOption } from "../src/components/QuizOption.js";
+import { renderButton } from "../src/components/common/Button.js";
+import { renderTabs } from "../src/components/common/Tabs.js";
+import { renderSignalCard } from "../src/components/learn/SignalCard.js";
+import { renderQuizOption } from "../src/components/practice/QuizOption.js";
+import { renderSemaphoreImage } from "../src/components/common/SemaphoreImage.js";
 import { SEMAPHORE_POSES } from "../src/data/semaphore.js";
 import { renderSemaphoreSvg } from "../src/lib/semaphore-svg.js";
 
@@ -38,4 +39,8 @@ test("semaphore SVG provides a complete pose for every letter", () => {
     assert.match(svg, /semaphore-svg__flag--yellow/);
     assert.match(svg, /semaphore-svg__flag-outline/);
   }
+});
+
+test("SemaphoreImage resolves its data and SVG dependencies from common", () => {
+  assert.match(renderSemaphoreImage("A"), /<svg/);
 });

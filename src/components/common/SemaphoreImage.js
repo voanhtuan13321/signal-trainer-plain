@@ -1,5 +1,5 @@
-import { SEMAPHORE_POSES } from "../data/semaphore.js";
-import { renderSemaphoreSvg } from "../lib/semaphore-svg.js";
+import { SEMAPHORE_POSES } from "../../data/semaphore.js";
+import { renderSemaphoreSvg } from "../../lib/semaphore-svg.js";
 
 /**
  * Render a Semaphore image tag for a known character.

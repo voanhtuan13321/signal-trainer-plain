@@ -1,10 +1,10 @@
 import { MORSE_CODE } from "../data/morse.js";
 import { SEMAPHORE_CODE } from "../data/semaphore.js";
 import { playMorseCharacter } from "../services/morseAudio.js";
-import { renderSemaphoreImage } from "../components/SemaphoreImage.js";
-import { renderButton } from "../components/Button.js";
-import { renderTabs } from "../components/Tabs.js";
-import { renderSignalCard } from "../components/SignalCard.js";
+import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
+import { renderButton } from "../components/common/Button.js";
+import { renderTabs } from "../components/common/Tabs.js";
+import { renderSignalCard } from "../components/learn/SignalCard.js";
 
 /**
  * Read the optional tab query from the hash route.

@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseChangelog } from "../src/lib/changelog.js";
-import { renderVersionBadge } from "../src/components/VersionBadge.js";
-import { renderReleaseCard } from "../src/components/ReleaseCard.js";
-import { renderReleaseTimeline } from "../src/components/ReleaseTimeline.js";
+import { renderVersionBadge } from "../src/components/updates/VersionBadge.js";
+import { renderReleaseCard } from "../src/components/updates/ReleaseCard.js";
+import { renderReleaseTimeline } from "../src/components/updates/ReleaseTimeline.js";
 
 test("parseChangelog keeps the newest release first", () => {
   const releases = parseChangelog("## [0.2.0] - 2026-09-01\n\n### Thêm\n- Tính năng mới");
