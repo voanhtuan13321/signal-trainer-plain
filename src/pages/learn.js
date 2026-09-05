@@ -1,6 +1,6 @@
-import { MORSE_CODE, SEMAPHORE_CODE } from "../../data/signals.js";
-import { playMorseCharacter } from "../../audio/morse.js";
-import { renderSemaphoreImage } from "../../ui/semaphore-image.js";
+import { MORSE_CODE, SEMAPHORE_CODE } from "../data/signals.js";
+import { playMorseCharacter } from "../services/morse-audio.js";
+import { renderSemaphoreImage } from "../components/semaphore-image.js";
 
 /**
  * Read the optional tab query from the hash route.

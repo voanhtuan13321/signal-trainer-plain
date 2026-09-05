@@ -1,10 +1,10 @@
-import { renderHome } from "../features/home.js";
-import { renderLearn } from "../features/learn/learn-view.js";
+import { renderHome } from "../pages/home.js";
+import { renderLearn } from "../pages/learn.js";
 import {
   cleanupPracticeKeyboardHandler,
   renderPractice
-} from "../features/practice/practice-view.js";
-import { renderNotFound } from "../features/not-found.js";
+} from "../pages/practice.js";
+import { renderNotFound } from "../pages/not-found.js";
 
 /**
  * Create the hash router for this single-page static app.

@@ -1,7 +1,7 @@
-import { MORSE_LETTERS, SEMAPHORE_CODE } from "../../data/signals.js";
-import { playMorseCharacter } from "../../audio/morse.js";
-import { renderSemaphoreImage } from "../../ui/semaphore-image.js";
-import { createChoiceQuestion, isCorrectAnswer } from "../../ui/quiz.js";
+import { MORSE_LETTERS, SEMAPHORE_CODE } from "../data/signals.js";
+import { playMorseCharacter } from "../services/morse-audio.js";
+import { renderSemaphoreImage } from "../components/semaphore-image.js";
+import { createChoiceQuestion, isCorrectAnswer } from "../components/quiz.js";
 
 // The practice screen binds one document-level keyboard handler. Keeping the
 // reference at module scope lets the router clean it up before changing routes.

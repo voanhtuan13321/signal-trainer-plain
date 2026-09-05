@@ -1,4 +1,4 @@
-import { createRouter } from "./router.js";
+import { createRouter } from "./app/router.js";
 
 /**
  * Application bootstrap.

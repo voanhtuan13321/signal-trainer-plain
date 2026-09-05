@@ -10,11 +10,12 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 
 - `index.html`: app shell
 - `styles/`: split CSS files
-- `src/core/`: app bootstrap and router
+- `src/main.js`: application entry point
+- `src/app/`: router and application-level setup
+- `src/pages/`: route-level screens
+- `src/components/`: reusable UI and quiz helpers
 - `src/data/`: current app metadata and static signal dictionaries
-- `src/audio/`: Morse Web Audio playback
-- `src/features/`: screen-level feature modules
-- `src/ui/`: shared rendering and quiz helpers
+- `src/services/`: browser services such as Morse Web Audio playback
 - `public/assets/semaphore/`: per-letter Semaphore images
 - `version.json`: current release version metadata
 - `CHANGELOG.md`: release history
