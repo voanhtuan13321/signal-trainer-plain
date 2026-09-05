@@ -21,7 +21,7 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/services/`: browser services such as Morse Web Audio playback
 - `src/lib/semaphore-svg.js`: vector Semaphore renderer
 - `tests/`: Node.js built-in tests for framework-independent logic
-- `version.json`: current release version metadata
+- `src/data/app-meta.js`: current release version metadata
 - `CHANGELOG.md`: release history
 
 ## Local Run
@@ -39,9 +39,8 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ## Release Workflow
 
-1. Update `version.json`
-2. Update `src/data/signals.js` app metadata so the in-app version matches the release
-3. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
+1. Update `src/data/app-meta.js` with the new version and release date
+2. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
 4. Commit the release changes
 5. Create and push a git tag
 6. Create a GitHub Release using the changelog content

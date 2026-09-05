@@ -4,6 +4,30 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 Định dạng dựa trên Keep a Changelog và đã được Việt hóa để dễ đọc hơn.
 
+## [1.0.0] - 2026-09-05
+
+### Thêm
+- Chế độ luyện tập nâng cao với giới hạn thời gian giảm dần theo chuỗi trả lời đúng.
+- Dialog chọn Morse hoặc Semaphore khi bắt đầu và bắt đầu lại lượt chơi.
+- Tự động phát âm thanh Morse trong chế độ luyện tập nâng cao.
+- Hiển thị Semaphore bằng SVG đầy đủ thay cho bộ ảnh cắt rời.
+- Timeline trực quan cho lịch sử cập nhật theo từng phiên bản.
+
+### Thay đổi
+- Tái cấu trúc mã nguồn theo các nhóm `app`, `pages`, `components`, `data`, `services`, `features` và `lib`.
+- Tách các component dùng chung như Button, Tabs, QuizOption và SemaphoreImage.
+- Chuyển changelog thành nguồn dữ liệu duy nhất, đọc trực tiếp từ `CHANGELOG.md`.
+- Cải thiện giao diện mobile, scroll, navbar cố định và hiển thị SVG Semaphore.
+- Bổ sung accessibility cho tabs, focus keyboard, skip link và vùng an toàn trên thiết bị có tai thỏ.
+- Tối ưu cache changelog, timer luyện tập và vòng đời phát âm thanh Morse.
+
+### Sửa lỗi
+- Sửa vị trí, hướng tay và vị trí mép cờ trong các tư thế Semaphore.
+- Sửa lỗi SVG bị che mất đầu hoặc cờ trong màn hình luyện tập.
+- Sửa lựa chọn Morse/Semaphore không cập nhật đúng trạng thái active trong dialog.
+- Sửa lỗi audio tiếp tục phát khi rời màn hình hoặc chuyển câu hỏi.
+- Escape nội dung changelog trước khi render để tránh chèn HTML ngoài ý muốn.
+
 ## [0.2.0] - 2026-09-01
 
 ### Thêm
@@ -29,7 +53,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 - Giao diện mobile-first để học và luyện Morse và Semaphore.
 - Bộ ảnh Semaphore cho từng chữ cái từ A đến Z.
 - Cấu trúc static app tương thích với GitHub Pages.
-- Bộ khung phát hành gồm `CHANGELOG.md`, `README.md`, `version.json` và `.github/release.yml`.
+- Bộ khung phát hành gồm `CHANGELOG.md`, `README.md`, `src/data/app-meta.js` và `.github/release.yml`.
 
 ### Thay đổi
 - Đơn giản hóa luồng Home và Practice cho điện thoại.
