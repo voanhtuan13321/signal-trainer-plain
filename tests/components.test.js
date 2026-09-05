@@ -4,6 +4,8 @@ import { renderButton } from "../src/components/Button.js";
 import { renderTabs } from "../src/components/Tabs.js";
 import { renderSignalCard } from "../src/components/SignalCard.js";
 import { renderQuizOption } from "../src/components/QuizOption.js";
+import { SEMAPHORE_POSES } from "../src/data/semaphore.js";
+import { renderSemaphoreSvg } from "../src/lib/semaphore-svg.js";
 
 test("renderButton creates a reusable styled button", () => {
   assert.match(renderButton({ label: "Nghe", className: "button--ghost" }), /button--ghost/);
@@ -26,4 +28,14 @@ test("renderQuizOption supports disabled and result states", () => {
   const html = renderQuizOption({ value: "A", disabled: true, result: "correct" });
   assert.match(html, /is-correct/);
   assert.match(html, /disabled/);
+});
+
+test("semaphore SVG provides a complete pose for every letter", () => {
+  assert.equal(Object.keys(SEMAPHORE_POSES).length, 26);
+  for (const character of Object.keys(SEMAPHORE_POSES)) {
+    const svg = renderSemaphoreSvg(character, SEMAPHORE_POSES);
+    assert.match(svg, /viewBox="0 -20 200 220"/);
+    assert.match(svg, /semaphore-svg__flag--yellow/);
+    assert.match(svg, /semaphore-svg__flag-outline/);
+  }
 });

@@ -16,10 +16,10 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/pages/UpdatesPage.js`: version changelog screen at `#/updates`
 - `src/components/`: reusable UI rendering helpers (`Button`, `Tabs`, `SignalCard`, `QuizOption`)
 - `src/lib/`: framework-independent quiz logic
-- `src/data/`: current app metadata and static signal dictionaries
+- `src/data/`: domain data split into `app-meta.js`, `morse.js`, and `semaphore.js`
 - `src/services/`: browser services such as Morse Web Audio playback
+- `src/lib/semaphore-svg.js`: vector Semaphore renderer
 - `tests/`: Node.js built-in tests for framework-independent logic
-- `public/assets/semaphore/`: per-letter Semaphore images
 - `version.json`: current release version metadata
 - `CHANGELOG.md`: release history
 

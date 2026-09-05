@@ -1,4 +1,4 @@
-import { APP_META } from "../data/signals.js";
+import { APP_META } from "../data/app-meta.js";
 import { renderVersionBadge } from "../components/VersionBadge.js";
 
 /**

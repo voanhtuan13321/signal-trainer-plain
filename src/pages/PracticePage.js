@@ -1,4 +1,5 @@
-import { MORSE_LETTERS, SEMAPHORE_CODE } from "../data/signals.js";
+import { MORSE_LETTERS } from "../data/morse.js";
+import { SEMAPHORE_CODE } from "../data/semaphore.js";
 import { playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/SemaphoreImage.js";
 import { createChoiceQuestion, isCorrectAnswer } from "../lib/quiz.js";

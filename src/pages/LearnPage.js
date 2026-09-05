@@ -1,4 +1,5 @@
-import { MORSE_CODE, SEMAPHORE_CODE } from "../data/signals.js";
+import { MORSE_CODE } from "../data/morse.js";
+import { SEMAPHORE_CODE } from "../data/semaphore.js";
 import { playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/SemaphoreImage.js";
 import { renderButton } from "../components/Button.js";

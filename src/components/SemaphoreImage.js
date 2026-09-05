@@ -1,4 +1,5 @@
-import { SEMAPHORE_IMAGES } from "../data/signals.js";
+import { SEMAPHORE_POSES } from "../data/semaphore.js";
+import { renderSemaphoreSvg } from "../lib/semaphore-svg.js";
 
 /**
  * Render a Semaphore image tag for a known character.
@@ -7,11 +8,6 @@ import { SEMAPHORE_IMAGES } from "../data/signals.js";
  * and avoid leaking broken image icons into the quiz UI.
  */
 export function renderSemaphoreImage(character, className = "semaphore__image") {
-  const imagePath = SEMAPHORE_IMAGES[character];
-
-  if (!imagePath) {
-    return "";
-  }
-
-  return `<img class="${className}" src="${imagePath}" alt="Semaphore ${character}">`;
+  const svg = renderSemaphoreSvg(character, SEMAPHORE_POSES);
+  return svg ? svg.replace('class="semaphore-svg"', `class="semaphore-svg ${className}"`) : "";
 }
