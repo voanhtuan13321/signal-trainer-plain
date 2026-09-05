@@ -1,11 +1,17 @@
 import { MORSE_LETTERS, SEMAPHORE_CODE } from "../data/signals.js";
-import { playMorseCharacter } from "../services/morse-audio.js";
-import { renderSemaphoreImage } from "../components/semaphore-image.js";
-import { createChoiceQuestion, isCorrectAnswer } from "../components/quiz.js";
+import { playMorseCharacter } from "../services/morseAudio.js";
+import { renderSemaphoreImage } from "../components/SemaphoreImage.js";
+import { createChoiceQuestion, isCorrectAnswer } from "../lib/quiz.js";
 
 // The practice screen binds one document-level keyboard handler. Keeping the
 // reference at module scope lets the router clean it up before changing routes.
 let currentKeyboardHandler = null;
+let currentPracticeCleanup = null;
+
+export function cleanupPractice() {
+  currentPracticeCleanup?.();
+  currentPracticeCleanup = null;
+}
 
 /**
  * Release the active keyboard shortcut handler, if the practice view installed
@@ -63,6 +69,19 @@ export function renderPractice(app) {
     autoAdvanceTimer: null,
     feedbackMessage: "",
     feedbackClassName: "feedback"
+  };
+  let autoPlayTimer = null;
+
+  currentPracticeCleanup = () => {
+    cleanupPracticeKeyboardHandler();
+    if (state.autoAdvanceTimer) {
+      window.clearTimeout(state.autoAdvanceTimer);
+      state.autoAdvanceTimer = null;
+    }
+    if (autoPlayTimer) {
+      window.clearTimeout(autoPlayTimer);
+      autoPlayTimer = null;
+    }
   };
 
   function createQuestion() {
@@ -143,7 +162,7 @@ export function renderPractice(app) {
       state.autoAdvanceTimer = null;
     }
 
-    cleanupPracticeKeyboardHandler();
+    currentPracticeCleanup?.();
     createQuestion();
     draw();
   }
@@ -157,7 +176,8 @@ export function renderPractice(app) {
       return;
     }
 
-    window.setTimeout(async () => {
+    autoPlayTimer = window.setTimeout(async () => {
+      autoPlayTimer = null;
       try {
         await playMorseCharacter(state.question.prompt);
       } catch (error) {
@@ -175,7 +195,7 @@ export function renderPractice(app) {
     }
 
     state.mode = mode;
-    cleanupPracticeKeyboardHandler();
+    currentPracticeCleanup?.();
     createQuestion();
     draw();
   }

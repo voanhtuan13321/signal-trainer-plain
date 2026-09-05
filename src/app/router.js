@@ -1,10 +1,10 @@
-import { renderHome } from "../pages/home.js";
-import { renderLearn } from "../pages/learn.js";
+import { renderHome } from "../pages/HomePage.js";
+import { renderLearn } from "../pages/LearnPage.js";
 import {
-  cleanupPracticeKeyboardHandler,
+  cleanupPractice,
   renderPractice
-} from "../pages/practice.js";
-import { renderNotFound } from "../pages/not-found.js";
+} from "../pages/PracticePage.js";
+import { renderNotFound } from "../pages/NotFoundPage.js";
 
 /**
  * Create the hash router for this single-page static app.
@@ -22,7 +22,7 @@ export function createRouter(app) {
   function renderRoute() {
     // Practice owns a document-level keyboard handler, so route changes must
     // release it before rendering a different screen.
-    cleanupPracticeKeyboardHandler();
+    cleanupPractice();
 
     const rawHash = window.location.hash.slice(1) || "/";
     const path = rawHash.split("?")[0];
