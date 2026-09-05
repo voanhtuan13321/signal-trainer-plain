@@ -1,41 +1,41 @@
-# Changelog
+# Nhật ký thay đổi
 
-All notable changes to this project will be documented in this file.
+Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài liệu này.
 
-The format is based on Keep a Changelog, adapted to the needs of this project.
+Định dạng dựa trên Keep a Changelog và đã được Việt hóa để dễ đọc hơn.
 
 ## [0.2.0] - 2026-09-01
 
-### Added
-- Release process documentation and in-app version display.
-- Native ES module architecture for the GitHub Pages app.
-- Local Node.js development server for testing ES modules over HTTP.
-- Friendly Morse autoplay fallback when browsers block audio before a user gesture.
+### Thêm
+- Tài liệu quy trình phát hành và hiển thị phiên bản trong ứng dụng.
+- Kiến trúc native ES modules cho ứng dụng GitHub Pages.
+- Máy chủ phát triển Node.js cục bộ để kiểm thử ES modules qua HTTP.
+- Cơ chế dự phòng thân thiện khi trình duyệt chặn tự động phát âm thanh Morse.
 
-### Changed
-- Split application code into core, data, audio, feature, and UI modules.
-- Moved Semaphore assets to `public/assets/semaphore/`.
-- Standardized generated markup on template literals.
-- Removed unused theme and settings code, keeping the app light-mode only.
-- Improved mobile Home and Practice layout to avoid unnecessary scrolling.
+### Thay đổi
+- Tách mã nguồn ứng dụng thành các module app, data, services, pages, components và lib.
+- Di chuyển tài nguyên Semaphore vào `public/assets/semaphore/`.
+- Chuẩn hóa phần markup sinh bằng template literal.
+- Xóa theme và settings không sử dụng, giữ ứng dụng ở light mode.
+- Cải thiện bố cục Home và Practice trên thiết bị di động.
 
-### Fixed
-- Fixed route lifecycle cleanup for the Practice keyboard handler.
-- Fixed local asset paths and release checklist documentation paths.
+### Sửa lỗi
+- Dọn dẹp keyboard handler khi rời màn Practice.
+- Sửa đường dẫn asset và đường dẫn tài liệu release checklist.
 
 ## [0.1.0] - 2026-08-31
 
-### Added
-- Mobile-first Signal Trainer UI for learning and practicing Morse and Semaphore.
-- Semaphore image assets for each letter from `A` to `Z`.
-- GitHub Pages-ready static structure using plain HTML, CSS, and JavaScript.
-- Release scaffolding with `CHANGELOG.md`, `README.md`, `version.json`, and `.github/release.yml`.
+### Thêm
+- Giao diện mobile-first để học và luyện Morse và Semaphore.
+- Bộ ảnh Semaphore cho từng chữ cái từ A đến Z.
+- Cấu trúc static app tương thích với GitHub Pages.
+- Bộ khung phát hành gồm `CHANGELOG.md`, `README.md`, `version.json` và `.github/release.yml`.
 
-### Changed
-- Simplified the home and practice flows for phone-first usage.
-- Switched Semaphore rendering from generated SVG to image-based assets.
-- Locked the app to light mode only.
+### Thay đổi
+- Đơn giản hóa luồng Home và Practice cho điện thoại.
+- Chuyển phần hiển thị Semaphore từ SVG sinh động sang hình ảnh.
+- Khóa ứng dụng ở light mode.
 
-### Fixed
-- Practice footer now appears only when needed.
-- Git line-ending behavior is pinned with `.gitattributes`.
+### Sửa lỗi
+- Footer Practice chỉ hiển thị khi cần.
+- Cố định quy tắc line ending của Git bằng `.gitattributes`.

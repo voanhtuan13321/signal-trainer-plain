@@ -5,6 +5,7 @@ import {
   renderPractice
 } from "../pages/PracticePage.js";
 import { renderNotFound } from "../pages/NotFoundPage.js";
+import { renderUpdates } from "../pages/UpdatesPage.js";
 
 /**
  * Create the hash router for this single-page static app.
@@ -16,7 +17,8 @@ export function createRouter(app) {
   const routes = {
     "/": () => renderHome(app),
     "/learn": () => renderLearn(app),
-    "/practice": () => renderPractice(app)
+    "/practice": () => renderPractice(app),
+    "/updates": () => renderUpdates(app)
   };
 
   function renderRoute() {

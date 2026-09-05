@@ -1,4 +1,5 @@
 import { APP_META } from "../data/signals.js";
+import { renderVersionBadge } from "../components/VersionBadge.js";
 
 /**
  * Render the static landing screen. Keeping this as a feature module makes the
@@ -15,7 +16,7 @@ export function renderHome(app) {
           <a class="button" href="#/practice">Vào luyện tập</a>
           <a class="button button--secondary" href="#/learn">Xem bảng tín hiệu</a>
         </div>
-        <div class="release-chip">v${APP_META.version} · ${APP_META.releaseDate}</div>
+        ${renderVersionBadge({ version: APP_META.version, date: APP_META.releaseDate })}
       </div>
     </section>
   `.trim();

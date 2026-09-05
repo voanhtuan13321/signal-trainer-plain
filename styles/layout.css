@@ -20,7 +20,7 @@
 
 .main {
   min-height: calc(100vh - 188px);
-  padding: var(--space-4) 0 var(--space-6);
+  padding: var(--space-4) 0 calc(96px + var(--space-6));
   outline: none;
 }
 
@@ -110,6 +110,10 @@ body.route-practice .main {
 
   .topbar {
     gap: var(--space-3);
+  }
+
+  .main {
+    padding-bottom: var(--space-6);
   }
 
   .practice-layout {

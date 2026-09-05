@@ -13,6 +13,7 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/main.js`: application entry point
 - `src/app/`: router and application-level setup
 - `src/pages/`: route-level screens (`HomePage`, `LearnPage`, `PracticePage`)
+- `src/pages/UpdatesPage.js`: version changelog screen at `#/updates`
 - `src/components/`: reusable UI rendering helpers (`Button`, `Tabs`, `SignalCard`, `QuizOption`)
 - `src/lib/`: framework-independent quiz logic
 - `src/data/`: current app metadata and static signal dictionaries
@@ -33,6 +34,7 @@ node scripts/dev-server.mjs
 ```
 
 Then open [http://localhost:8000](http://localhost:8000).
+
 
 ## Release Workflow
 
