@@ -1,6 +1,9 @@
 import { MORSE_CODE, SEMAPHORE_CODE } from "../data/signals.js";
 import { playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/SemaphoreImage.js";
+import { renderButton } from "../components/Button.js";
+import { renderTabs } from "../components/Tabs.js";
+import { renderSignalCard } from "../components/SignalCard.js";
 
 /**
  * Read the optional tab query from the hash route.
@@ -26,15 +29,11 @@ function renderMorseGrid() {
     .map((character) => {
       const code = MORSE_CODE[character];
 
-      return `
-        <article class="card alphabet-card">
-          <div class="alphabet-card__letter">${character}</div>
-          <div class="morse-code">${code}</div>
-          <div class="actions">
-            <button class="button button--ghost button--small" type="button" data-play-morse="${code}">▶ Play</button>
-          </div>
-        </article>
-      `.trim();
+      return renderSignalCard({
+        character,
+        content: `<div class="morse-code">${code}</div>`,
+        actions: renderButton({ label: "▶ Play", className: "button--ghost button--small", attributes: `data-play-morse="${code}"` })
+      });
     })
     .join("");
 
@@ -50,12 +49,10 @@ function renderMorseGrid() {
 function renderSemaphoreGrid() {
   const cards = Object.keys(SEMAPHORE_CODE)
     .map((character) =>
-      `
-        <article class="card alphabet-card">
-          <div class="alphabet-card__letter">${character}</div>
-          <div class="semaphore">${renderSemaphoreImage(character)}</div>
-        </article>
-      `.trim()
+      renderSignalCard({
+        character,
+        content: `<div class="semaphore">${renderSemaphoreImage(character)}</div>`
+      })
     )
     .join("");
 
@@ -81,10 +78,7 @@ export function renderLearn(app) {
               <h1>Học bảng tín hiệu</h1>
               <p>Chạm để xem nhanh, nghe nhanh rồi quay lại luyện tập.</p>
             </div>
-            <div class="tabs">
-              <button class="tab ${activeTab === "morse" ? "is-active" : ""}" type="button" data-tab="morse">Morse</button>
-              <button class="tab ${activeTab === "semaphore" ? "is-active" : ""}" type="button" data-tab="semaphore">Semaphore</button>
-            </div>
+            ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: activeTab })}
           </div>
           ${activeTab === "morse" ? renderMorseGrid() : renderSemaphoreGrid()}
         </div>

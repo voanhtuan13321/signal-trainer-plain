@@ -2,6 +2,9 @@ import { MORSE_LETTERS, SEMAPHORE_CODE } from "../data/signals.js";
 import { playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/SemaphoreImage.js";
 import { createChoiceQuestion, isCorrectAnswer } from "../lib/quiz.js";
+import { renderTabs } from "../components/Tabs.js";
+import { renderButton } from "../components/Button.js";
+import { renderQuizOption } from "../components/QuizOption.js";
 
 // The practice screen binds one document-level keyboard handler. Keeping the
 // reference at module scope lets the router clean it up before changing routes.
@@ -47,8 +50,7 @@ function renderQuestionPrompt(state) {
 function renderQuestionOptions(state) {
   return state.question.options
     .map(
-      (option) =>
-        `<button class="option" type="button" data-answer="${String(option)}">${String(option)}</button>`,
+      (option) => renderQuizOption({ value: option }),
     )
     .join("");
 }
@@ -270,21 +272,18 @@ export function renderPractice(app) {
           <div class="practice-layout">
             <article class="card quiz">
               <div class="quiz__controls">
-                <div class="tabs tabs--compact" role="tablist" aria-label="Chọn chế độ">
-                  <button class="tab ${state.mode === "morse" ? "is-active" : ""}" type="button" data-practice-mode="morse">Morse</button>
-                  <button class="tab ${state.mode === "semaphore" ? "is-active" : ""}" type="button" data-practice-mode="semaphore">Semaphore</button>
-                </div>
+                ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: state.mode, attribute: "data-practice-mode", className: "tabs--compact", containerAttributes: 'role="tablist" aria-label="Chọn chế độ"' })}
               </div>
               <div class="quiz__prompt">
                 <div class="quiz__signal">${renderQuestionPrompt(state)}</div>
-                ${state.mode === "morse" ? '<button class="button button--ghost button--small quiz__play" id="play-question" type="button">Nghe</button>' : ""}
+                ${state.mode === "morse" ? renderButton({ label: "Nghe", className: "button--ghost button--small quiz__play", attributes: 'id="play-question"' }) : ""}
               </div>
               <div class="quiz__options">${renderQuestionOptions(state)}</div>
               <div class="quiz__footer" id="quiz-footer" ${state.feedbackMessage || state.showNextButton ? "" : "hidden"}>
                 <div id="feedback" class="${state.feedbackClassName}" aria-live="polite" ${state.feedbackMessage ? "" : "hidden"}>${state.feedbackMessage}</div>
                 ${state.showNextButton
-                  ? '<button class="button button--secondary button--small" id="next-question" type="button">Câu tiếp theo</button>'
-                  : '<button class="button button--secondary button--small" id="next-question" type="button" hidden disabled>Câu tiếp theo</button>'}
+                  ? renderButton({ label: "Câu tiếp theo", className: "button--secondary button--small", attributes: 'id="next-question"' })
+                  : renderButton({ label: "Câu tiếp theo", className: "button--secondary button--small", attributes: 'id="next-question" hidden disabled' })}
               </div>
             </article>
           </div>
