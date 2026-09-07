@@ -1,4 +1,4 @@
-import { renderReleaseTimeline } from "../components/updates/ReleaseTimeline.js";
+import { renderReleaseTimeline, renderReleaseTimelineSkeleton } from "../components/updates/ReleaseTimeline.js";
 import { fetchChangelog } from "../lib/changelog.js";
 import { escapeHtml } from "../lib/escape-html.js";
 
@@ -13,18 +13,22 @@ export function renderUpdates(app) {
             <p>Lịch sử thay đổi của Signal Trainer theo từng phiên bản.</p>
           </div>
         </div>
-        <div class="release-list" aria-live="polite">Đang tải lịch sử cập nhật...</div>
+        <div class="release-list" aria-live="polite" aria-busy="true">${renderReleaseTimelineSkeleton()}</div>
       </div>
     </section>
   `.trim();
 
   fetchChangelog()
     .then((releases) => {
-      app.querySelector(".release-list").innerHTML = releases.length
+      const releaseList = app.querySelector(".release-list");
+      releaseList.setAttribute("aria-busy", "false");
+      releaseList.innerHTML = releases.length
         ? renderReleaseTimeline(releases)
         : "<p>Chưa có thông tin cập nhật.</p>";
     })
     .catch((error) => {
-      app.querySelector(".release-list").innerHTML = `<p class="feedback feedback--danger">${escapeHtml(error.message)}</p>`;
+      const releaseList = app.querySelector(".release-list");
+      releaseList.setAttribute("aria-busy", "false");
+      releaseList.innerHTML = `<p class="feedback feedback--danger">${escapeHtml(error.message)}</p>`;
     });
 }
