@@ -20,10 +20,10 @@
 
 .main {
   min-height: calc(100vh - 188px);
-  padding: var(--space-4) 0 calc(96px + var(--space-6));
+  padding: var(--space-4) 0 calc(var(--bottom-nav-space) + var(--space-6));
 }
 
-html { scroll-padding-bottom: 112px; }
+html { scroll-padding-bottom: var(--bottom-nav-space); }
 
 /* Home and practice are single-screen flows on mobile. The fixed nav already
    reserves its own viewport space, so these routes must not add a second page
@@ -103,6 +103,7 @@ body.route-practice .main {
 @media (min-width: 700px) {
   :root {
     --content-width: 920px;
+    --bottom-nav-space: 0px;
   }
 
   body {

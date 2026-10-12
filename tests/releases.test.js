@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { fetchChangelog, parseChangelog } from "../src/lib/changelog.js";
 import { renderVersionBadge } from "../src/components/updates/VersionBadge.js";
 import { renderReleaseCard } from "../src/components/updates/ReleaseCard.js";
-import { renderReleaseTimeline } from "../src/components/updates/ReleaseTimeline.js";
+import { renderReleaseTimeline, renderReleaseTimelineSkeleton } from "../src/components/updates/ReleaseTimeline.js";
 
 test("parseChangelog keeps the newest release first", () => {
   const releases = parseChangelog("## [0.2.0] - 2026-09-01\n\n### Thêm\n- Tính năng mới");
@@ -28,6 +28,13 @@ test("release card escapes changelog content", () => {
   const html = renderReleaseCard({ version: "0.2.0", date: "2026-09-01", changes: { added: ["<script>alert(1)</script>"] } });
   assert.doesNotMatch(html, /<script>/);
   assert.match(html, /&lt;script&gt;/);
+});
+
+test("release timeline skeleton renders loading cards", () => {
+  const html = renderReleaseTimelineSkeleton();
+  assert.match(html, /release-timeline--skeleton/);
+  assert.match(html, /aria-hidden="true"/);
+  assert.match(html, /release-card--skeleton/);
 });
 
 test("release timeline wraps releases in timeline items", () => {
