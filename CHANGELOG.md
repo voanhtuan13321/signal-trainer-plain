@@ -4,6 +4,20 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 Định dạng dựa trên Keep a Changelog và đã được Việt hóa để dễ đọc hơn.
 
+## [1.1.0] - 2026-10-12
+
+### Thêm
+- Skeleton loading cho timeline lịch sử cập nhật thay cho dòng chữ "Đang tải".
+
+### Thay đổi
+- Quản lý khoảng trống của thanh điều hướng dưới bằng biến `--bottom-nav-space`, đồng bộ padding nội dung và scroll padding.
+- Cập nhật `aria-busy` cho danh sách cập nhật khi tải xong hoặc gặp lỗi.
+
+### Sửa lỗi
+- Tắt hiệu ứng shimmer của skeleton khi người dùng bật giảm chuyển động.
+- Khôi phục padding vùng an toàn cho thanh điều hướng dưới trên thiết bị có thanh Home.
+- Tránh lỗi khi rời trang Updates trước khi tải xong lịch sử cập nhật.
+
 ## [1.0.0] - 2026-09-05
 
 ### Thêm
