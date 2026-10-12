@@ -21,6 +21,7 @@ export function renderUpdates(app) {
   fetchChangelog()
     .then((releases) => {
       const releaseList = app.querySelector(".release-list");
+      if (!releaseList) return;
       releaseList.setAttribute("aria-busy", "false");
       releaseList.innerHTML = releases.length
         ? renderReleaseTimeline(releases)
@@ -28,6 +29,7 @@ export function renderUpdates(app) {
     })
     .catch((error) => {
       const releaseList = app.querySelector(".release-list");
+      if (!releaseList) return;
       releaseList.setAttribute("aria-busy", "false");
       releaseList.innerHTML = `<p class="feedback feedback--danger">${escapeHtml(error.message)}</p>`;
     });

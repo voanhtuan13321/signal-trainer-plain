@@ -113,9 +113,9 @@
   .tab,
   .option {
     transition: none;
+  }
 
   .skeleton-block::after {
     animation: none;
   }
-}
 }
