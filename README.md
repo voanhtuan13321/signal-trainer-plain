@@ -16,14 +16,21 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/pages/UpdatesPage.js`: version changelog screen at `#/updates`
 - `src/pages/AdvancedPracticePage.js`: timed high-speed practice, opened from the regular Practice page
 - `src/components/`: UI grouped into `common`, `learn`, `practice`, and `updates`
-- `src/lib/`: framework-independent quiz logic
-- `src/features/practice/`: testable practice session logic
+- `src/lib/`: framework-independent helpers (quiz, changelog, escaping, HTML attributes, keyboard, SVG)
+- `src/features/practice/`: pure practice session state (`practice-session`, `advanced-session`)
+- `src/features/signals/`: signal `modes` (Morse, Semaphore) and prompt audio shared by Learn and Practice
 - `src/data/`: domain data split into `app-meta.js`, `morse.js`, and `semaphore.js`
 - `src/services/`: browser services such as Morse Web Audio playback
 - `src/lib/semaphore-svg.js`: vector Semaphore renderer
 - `tests/`: Node.js built-in tests for framework-independent logic
 - `src/data/app-meta.js`: current release version metadata
 - `CHANGELOG.md`: release history
+
+## Code Conventions
+
+- Pages: `render*(app)` draws into `app` and returns an optional cleanup function; the router calls it before the next route. Pages bind listeners once on `app` (event delegation) and redraw from state.
+- Components: `render*` functions return HTML strings. Plain-text params are escaped; markup params are named `*Html`; extra attributes are passed as `attrs` objects.
+- Files: components use PascalCase (`Button.js`); logic modules use kebab-case (`tabs-behavior.js`).
 
 ## Local Run
 

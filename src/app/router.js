@@ -1,19 +1,20 @@
 import { renderHome } from "../pages/HomePage.js";
 import { renderLearn } from "../pages/LearnPage.js";
-import {
-  cleanupPractice,
-  renderPractice
-} from "../pages/PracticePage.js";
+import { renderPractice } from "../pages/PracticePage.js";
 import { renderNotFound } from "../pages/NotFoundPage.js";
 import { renderUpdates } from "../pages/UpdatesPage.js";
+import { renderAdvancedPractice } from "../pages/AdvancedPracticePage.js";
 import { clearRouteClasses, resolveRoute } from "./route-utils.js";
-import { cleanupAdvancedPractice, renderAdvancedPractice } from "../pages/AdvancedPracticePage.js";
 
 /**
  * Create the hash router for this single-page static app.
  *
  * Hash routes keep GitHub Pages deployment simple because every navigation still
  * requests index.html from the server.
+ *
+ * Every route function renders into `app` and may return a cleanup function
+ * (listeners, timers, audio). The router calls it before the next render, so
+ * pages never register themselves with the router.
  */
 export function createRouter(app) {
   const routes = {
@@ -24,11 +25,11 @@ export function createRouter(app) {
     "/advanced-practice": () => renderAdvancedPractice(app)
   };
 
+  let cleanup = null;
+
   function renderRoute() {
-    // Practice owns a document-level keyboard handler, so route changes must
-    // release it before rendering a different screen.
-    cleanupPractice();
-    cleanupAdvancedPractice();
+    cleanup?.();
+    cleanup = null;
 
     const { path, known, className } = resolveRoute(window.location.hash, routes);
     const render = known ? routes[path] : () => renderNotFound(app);
@@ -38,7 +39,7 @@ export function createRouter(app) {
     clearRouteClasses(document.body);
     document.body.classList.add(className);
 
-    render();
+    cleanup = render() || null;
 
     document.querySelectorAll("[data-nav]").forEach((link) => {
       link.classList.toggle("is-active", link.getAttribute("data-nav") === path);

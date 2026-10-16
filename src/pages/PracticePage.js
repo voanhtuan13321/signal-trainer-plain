@@ -1,311 +1,175 @@
-import { MORSE_LETTERS } from "../data/morse.js";
-import { SEMAPHORE_CODE } from "../data/semaphore.js";
-import { cancelMorseAudio, playMorseCharacter } from "../services/morseAudio.js";
-import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
-import { createChoiceQuestion, isCorrectAnswer } from "../lib/quiz.js";
+import { cancelMorseAudio } from "../services/morseAudio.js";
 import { renderTabs } from "../components/common/Tabs.js";
 import { bindTablistKeyboard } from "../components/common/tabs-behavior.js";
 import { renderButton } from "../components/common/Button.js";
 import { renderQuizOption } from "../components/practice/QuizOption.js";
+import { renderQuestionPrompt } from "../components/practice/QuestionPrompt.js";
+import { createPracticeSession } from "../features/practice/practice-session.js";
+import { SIGNAL_MODES, createModeQuestion, getSignalMode } from "../features/signals/modes.js";
+import { playPrompt } from "../features/signals/play-prompt.js";
+import { escapeHtml } from "../lib/escape-html.js";
+import { getOptionForKey, hasShortcutModifier, isOnControl } from "../lib/keyboard.js";
 
-// The practice screen binds one document-level keyboard handler. Keeping the
-// reference at module scope lets the router clean it up before changing routes.
-let currentKeyboardHandler = null;
-let currentPracticeCleanup = null;
+// Correct answers advance quickly, while wrong answers leave space to review.
+const AUTO_ADVANCE_MS = 700;
 
-export function cleanupPractice() {
-  currentPracticeCleanup?.();
-  currentPracticeCleanup = null;
+function describeOutcome({ correct, answer }) {
+  return correct ? "Đúng." : `Sai. Đáp án đúng là ${String(answer)}.`;
 }
 
 /**
- * Release the active keyboard shortcut handler, if the practice view installed
- * one during its latest render cycle.
- */
-function cleanupPracticeKeyboardHandler() {
-  if (!currentKeyboardHandler) {
-    return;
-  }
-
-  document.removeEventListener("keydown", currentKeyboardHandler);
-  currentKeyboardHandler = null;
-}
-
-/**
- * Render the current signal prompt. Morse prompts are text, Semaphore prompts
- * are images keyed by the underlying answer character.
- */
-function renderQuestionPrompt(state) {
-  if (state.mode === "semaphore") {
-    return `<div class="semaphore">${renderSemaphoreImage(
-      state.question.key,
-      "semaphore__image semaphore__image--prompt",
-    )}</div>`;
-  }
-
-  return String(state.question.prompt);
-}
-
-/**
- * Render answer buttons from the generated question shape.
- */
-function renderQuestionOptions(state) {
-  return state.question.options
-    .map(
-      (option) => renderQuizOption({ value: option }),
-    )
-    .join("");
-}
-
-/**
- * Render the practice screen and own the short-lived quiz state for this route.
- *
- * State is intentionally local to the render call so switching away and back
- * starts a fresh session without persisted timers or stale answer buttons.
+ * Render the practice screen. State lives in a pure session object and the
+ * view is redrawn from it after every change; listeners are delegated from
+ * `app` once and removed by the returned cleanup function.
  */
 export function renderPractice(app) {
-  const state = {
-    mode: "morse",
-    question: null,
-    answered: false,
-    showNextButton: false,
-    autoAdvanceTimer: null,
-    feedbackMessage: "",
-    feedbackClassName: "feedback"
-  };
+  const session = createPracticeSession({ createQuestion: createModeQuestion });
+  let autoAdvanceTimer = null;
+  let firstDraw = true;
+  let promptedQuestion = null;
   let autoPlayTimer = null;
 
-  currentPracticeCleanup = () => {
-    cancelMorseAudio();
-    cleanupPracticeKeyboardHandler();
-    if (state.autoAdvanceTimer) {
-      window.clearTimeout(state.autoAdvanceTimer);
-      state.autoAdvanceTimer = null;
-    }
-    if (autoPlayTimer) {
-      window.clearTimeout(autoPlayTimer);
-      autoPlayTimer = null;
-    }
-  };
+  // The live region must outlive redraws: screen readers only announce text
+  // that changes inside a region that already existed.
+  const liveRegion = document.createElement("div");
+  liveRegion.className = "visually-hidden";
+  liveRegion.setAttribute("aria-live", "polite");
+  document.body.append(liveRegion);
 
-  function createQuestion() {
-    // A pending auto-advance belongs to the previous question and must not fire
-    // after mode switches or manual "next question" actions.
-    if (state.autoAdvanceTimer) {
-      window.clearTimeout(state.autoAdvanceTimer);
-      state.autoAdvanceTimer = null;
-    }
+  function clearAutoAdvance() {
+    window.clearTimeout(autoAdvanceTimer);
+    autoAdvanceTimer = null;
+  }
 
-    state.answered = false;
-    state.showNextButton = false;
-    state.feedbackMessage = "";
-    state.feedbackClassName = "feedback";
-    state.question = createChoiceQuestion({
-      data: state.mode === "morse" ? MORSE_LETTERS : SEMAPHORE_CODE
+  function playQuestion() {
+    playPrompt(session.mode, session.question);
+  }
+
+  /** Autoplay may be rejected before the first user gesture; that is expected. */
+  function autoPlayQuestion() {
+    playPrompt(session.mode, session.question, {
+      onError: (error) => console.info("Morse audio chưa thể tự phát. Bạn có thể dùng nút Nghe hoặc phím Space để phát.", error)
     });
   }
 
-  function submitAnswer(answer) {
-    if (state.answered) {
-      return;
-    }
-
-    state.answered = true;
-    const correct = isCorrectAnswer(state.question, answer);
-
-    // Apply result classes before showing feedback so the UI updates as one
-    // coherent answer state.
-    app.querySelectorAll("[data-answer]").forEach((button) => {
-      const buttonAnswer = button.getAttribute("data-answer");
-
-      button.disabled = true;
-
-      if (buttonAnswer === String(state.question.answer)) {
-        button.classList.add("is-correct");
-      } else if (buttonAnswer === String(answer)) {
-        button.classList.add("is-wrong");
-      }
-    });
-
-    state.feedbackClassName = `feedback ${correct ? "feedback--success" : "feedback--danger"}`;
-    state.feedbackMessage = correct
-      ? "Đúng."
-      : `Sai. Đáp án đúng là ${String(state.question.answer)}.`;
-
-    const feedback = document.getElementById("feedback");
-    if (feedback) {
-      feedback.className = state.feedbackClassName;
-      feedback.textContent = state.feedbackMessage;
-      feedback.hidden = false;
-    }
-
-    const quizFooter = document.getElementById("quiz-footer");
-    if (quizFooter) {
-      quizFooter.hidden = false;
-    }
-
-    if (correct) {
-      // Correct answers advance quickly, while wrong answers leave space to review.
-      state.autoAdvanceTimer = window.setTimeout(() => {
-        nextQuestion();
-      }, 700);
-    } else {
-      state.showNextButton = true;
-      const nextQuestionButton = document.getElementById("next-question");
-      if (nextQuestionButton) {
-        nextQuestionButton.hidden = false;
-        nextQuestionButton.disabled = false;
-      }
-    }
+  function goToQuestion(change) {
+    clearAutoAdvance();
+    cancelMorseAudio();
+    change();
+    draw();
   }
 
   function nextQuestion() {
-    if (state.autoAdvanceTimer) {
-      window.clearTimeout(state.autoAdvanceTimer);
-      state.autoAdvanceTimer = null;
-    }
-
-    currentPracticeCleanup?.();
-    createQuestion();
-    draw();
-  }
-
-  /**
-   * Attempt to play a newly rendered Morse prompt without blocking the UI.
-   * Browsers may reject this before the first user gesture; that is expected.
-   */
-  function autoPlayQuestion() {
-    if (state.mode !== "morse") {
-      return;
-    }
-
-    autoPlayTimer = window.setTimeout(async () => {
-      autoPlayTimer = null;
-      try {
-        await playMorseCharacter(state.question.prompt);
-      } catch (error) {
-        console.info(
-            "Morse audio chưa thể tự phát. Bạn có thể dùng nút Nghe hoặc phím Space để phát.",
-          error,
-        );
-      }
-    }, 0);
+    goToQuestion(() => session.next());
   }
 
   function setMode(mode) {
-    if (state.mode === mode) {
+    if (mode !== session.mode) goToQuestion(() => session.setMode(mode));
+  }
+
+  function submitAnswer(value) {
+    const result = session.answer(value);
+    if (result === "ignored") return;
+    draw();
+    if (result === "correct") {
+      autoAdvanceTimer = window.setTimeout(nextQuestion, AUTO_ADVANCE_MS);
+    }
+  }
+
+  function onClick(event) {
+    const target = event.target.closest("[data-practice-mode], [data-answer], [data-play], [data-next]");
+    if (!target) return;
+
+    if (target.matches("[data-practice-mode]")) setMode(target.dataset.practiceMode);
+    else if (target.matches("[data-answer]")) submitAnswer(target.dataset.answer);
+    else if (target.matches("[data-play]")) playQuestion();
+    else nextQuestion();
+  }
+
+  // Shortcuts mirror the visible option order so the same flow works on
+  // desktop without adding extra UI text.
+  function onKeydown(event) {
+    if (hasShortcutModifier(event)) return;
+
+    const option = getOptionForKey(event, session.question.options);
+    if (option !== undefined) {
+      submitAnswer(String(option));
       return;
     }
 
-    state.mode = mode;
-    currentPracticeCleanup?.();
-    createQuestion();
-    draw();
+    if (isOnControl(event)) return;
+    if (event.key === "Enter" && session.answered) nextQuestion();
+    if (event.code === "Space" && getSignalMode(session.mode).hasAudio) {
+      event.preventDefault();
+      playQuestion();
+    }
   }
 
-  function bindPracticeEvents() {
-    app.querySelectorAll("[data-practice-mode]").forEach((button) => {
-      button.addEventListener("click", () => {
-        setMode(button.getAttribute("data-practice-mode"));
-      });
-    });
-
-    app.querySelectorAll("[data-answer]").forEach((button) => {
-      button.addEventListener("click", () => {
-        submitAnswer(button.getAttribute("data-answer"));
-      });
-    });
-
-    const nextQuestionButton = document.getElementById("next-question");
-    if (nextQuestionButton) {
-      nextQuestionButton.addEventListener("click", nextQuestion);
-    }
-
-    const playButton = document.getElementById("play-question");
-    if (playButton) {
-      playButton.addEventListener("click", () => {
-        if (state.mode === "morse") {
-          playMorseCharacter(state.question.prompt).catch(() => {});
-        }
-      });
-    }
-
-    // Keyboard shortcuts intentionally mirror the visible option order so the
-    // same flow works on desktop without adding extra UI text.
-    currentKeyboardHandler = (event) => {
-      // Browser and OS shortcuts (Ctrl+1 switches tabs, etc.) are not ours.
-      if (event.ctrlKey || event.metaKey || event.altKey) {
-        return;
-      }
-
-      // Focused controls already handle Space/Enter themselves; hijacking the
-      // key would break keyboard activation or fire the action twice.
-      const onControl = event.target instanceof Element &&
-        event.target.closest("button, a, input, select, textarea, [role='tab']");
-
-      if (["1", "2", "3", "4"].indexOf(event.key) !== -1) {
-        if (state.answered) {
-          return;
-        }
-
-        const option = state.question.options[Number(event.key) - 1];
-        if (typeof option !== "undefined") {
-          submitAnswer(String(option));
-        }
-      }
-
-      if (event.key === "Enter" && state.answered && !onControl) {
-        nextQuestion();
-      }
-
-      if (
-        event.code === "Space" &&
-        state.mode === "morse" &&
-        !onControl
-      ) {
-        event.preventDefault();
-        playMorseCharacter(state.question.prompt).catch(() => {});
-      }
-    };
-
-    document.addEventListener("keydown", currentKeyboardHandler);
-    autoPlayQuestion();
+  function renderFooter() {
+    const outcome = session.outcome;
+    return `
+      <div class="quiz__footer" ${outcome ? "" : "hidden"}>
+        <div class="feedback ${outcome ? `feedback--${outcome.correct ? "success" : "danger"}` : ""}" ${outcome ? "" : "hidden"}>${outcome ? escapeHtml(describeOutcome(outcome)) : ""}</div>
+        ${renderButton({ label: "Câu tiếp theo", className: "button--secondary button--small", attrs: { "data-next": true, hidden: !session.showNext } })}
+      </div>`;
   }
 
   function draw() {
-    if (!state.question) {
-      createQuestion();
-    }
+    const mode = getSignalMode(session.mode);
+    const options = session.question.options
+      .map((option) => renderQuizOption({ value: option, disabled: session.answered, result: session.resultFor(option) }))
+      .join("");
 
     app.innerHTML = `
       <section>
-        <div class="page-enter">
+        <div class="${firstDraw ? "page-enter" : ""}">
           <div class="practice-layout">
             <article class="card quiz">
               <div class="quiz__controls">
-                ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: state.mode, attribute: "data-practice-mode", className: "tabs--compact", panelId: "practice-panel", containerAttributes: 'aria-label="Chọn chế độ"' })}
+                ${renderTabs({
+                  items: SIGNAL_MODES,
+                  activeValue: session.mode,
+                  attribute: "data-practice-mode",
+                  className: "tabs--compact",
+                  panelId: "practice-panel",
+                  containerAttrs: { "aria-label": "Chọn chế độ" }
+                })}
                 <a class="button button--ghost button--small practice__advanced-link" href="#/advanced-practice">Luyện tập nâng cao</a>
               </div>
-              <div id="practice-panel" class="quiz__prompt" role="tabpanel" aria-labelledby="tab-${state.mode}">
-                <div class="quiz__signal">${renderQuestionPrompt(state)}</div>
-                ${state.mode === "morse" ? renderButton({ label: "Nghe", className: "button--ghost button--small quiz__play", attributes: 'id="play-question"' }) : ""}
+              <div id="practice-panel" class="quiz__prompt" role="tabpanel" aria-labelledby="tab-${escapeHtml(session.mode)}">
+                <div class="quiz__signal">${renderQuestionPrompt({ mode: session.mode, question: session.question })}</div>
+                ${mode.hasAudio ? renderButton({ label: "Nghe", className: "button--ghost button--small quiz__play", attrs: { "data-play": true } }) : ""}
               </div>
-              <div class="quiz__options">${renderQuestionOptions(state)}</div>
-              <div class="quiz__footer" id="quiz-footer" ${state.feedbackMessage || state.showNextButton ? "" : "hidden"}>
-                <div id="feedback" class="${state.feedbackClassName}" aria-live="polite" ${state.feedbackMessage ? "" : "hidden"}>${state.feedbackMessage}</div>
-                ${state.showNextButton
-                  ? renderButton({ label: "Câu tiếp theo", className: "button--secondary button--small", attributes: 'id="next-question"' })
-                  : renderButton({ label: "Câu tiếp theo", className: "button--secondary button--small", attributes: 'id="next-question" hidden disabled' })}
-              </div>
+              <div class="quiz__options">${options}</div>
+              ${renderFooter()}
             </article>
           </div>
         </div>
       </section>
     `.trim();
+    firstDraw = false;
+    liveRegion.textContent = session.outcome ? describeOutcome(session.outcome) : "";
 
-    bindTablistKeyboard(app);
-    bindPracticeEvents();
+    // Answer redraws keep the same question, so only a new one is auto-played.
+    if (promptedQuestion !== session.question) {
+      promptedQuestion = session.question;
+      window.clearTimeout(autoPlayTimer);
+      autoPlayTimer = window.setTimeout(autoPlayQuestion, 0);
+    }
   }
 
+  const unbindTabs = bindTablistKeyboard(app);
+  app.addEventListener("click", onClick);
+  document.addEventListener("keydown", onKeydown);
   draw();
+
+  return () => {
+    clearAutoAdvance();
+    window.clearTimeout(autoPlayTimer);
+    cancelMorseAudio();
+    unbindTabs();
+    liveRegion.remove();
+    app.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKeydown);
+  };
 }

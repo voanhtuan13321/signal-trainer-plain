@@ -1,34 +1,14 @@
-import { MORSE_LETTERS } from "../data/morse.js";
-import { SEMAPHORE_CODE } from "../data/semaphore.js";
-import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
 import { renderTabs } from "../components/common/Tabs.js";
 import { bindTablistKeyboard, setActiveTab } from "../components/common/tabs-behavior.js";
 import { renderButton } from "../components/common/Button.js";
 import { renderQuizOption } from "../components/practice/QuizOption.js";
-import { createChoiceQuestion } from "../lib/quiz.js";
+import { renderQuestionPrompt } from "../components/practice/QuestionPrompt.js";
 import { createAdvancedSession } from "../features/practice/advanced-session.js";
+import { SIGNAL_MODES, createModeQuestion } from "../features/signals/modes.js";
+import { playPrompt } from "../features/signals/play-prompt.js";
 import { escapeHtml } from "../lib/escape-html.js";
-import { cancelMorseAudio, playMorseCharacter } from "../services/morseAudio.js";
-
-const MODE_ITEMS = [
-  { value: "morse", label: "Morse" },
-  { value: "semaphore", label: "Semaphore" }
-];
-
-let cleanupAdvanced = null;
-
-export function cleanupAdvancedPractice() {
-  cleanupAdvanced?.();
-  cleanupAdvanced = null;
-}
-
-function renderPrompt(session) {
-  if (!session.started) return "Sẵn sàng?";
-  if (session.mode === "semaphore") {
-    return `<div class="semaphore">${renderSemaphoreImage(session.question.key, "semaphore__image semaphore__image--prompt")}</div>`;
-  }
-  return escapeHtml(session.question.prompt);
-}
+import { getOptionForKey, hasShortcutModifier } from "../lib/keyboard.js";
+import { cancelMorseAudio } from "../services/morseAudio.js";
 
 /** Start dialog before the first run, result dialog after a run ends. */
 function renderDialog(session) {
@@ -40,7 +20,7 @@ function renderDialog(session) {
       <h2>${escapeHtml(session.reason)}</h2>
       <p>Bạn trả lời đúng <strong>${session.correct}</strong> câu liên tiếp.</p>
       <p>Kỷ lục trong lượt này: <strong>${session.best}</strong> câu.</p>
-      ${renderButton({ label: "Bắt đầu lại", className: "button--secondary", attributes: "data-restart" })}
+      ${renderButton({ label: "Bắt đầu lại", className: "button--secondary", attrs: { "data-restart": true } })}
       ${backLink}`;
   }
 
@@ -48,15 +28,25 @@ function renderDialog(session) {
     <div class="eyebrow">Chọn chế độ</div>
     <h2>Bắt đầu luyện tập</h2>
     <p>Chọn loại tín hiệu để bắt đầu lượt luyện tốc độ cao.</p>
-    ${renderTabs({ items: MODE_ITEMS, activeValue: session.mode, attribute: "data-start-mode", className: "start-mode-tabs", idPrefix: "start-tab", containerAttributes: 'aria-label="Chọn loại tín hiệu"' })}
-    ${renderButton({ label: "Bắt đầu", className: "button--secondary", attributes: "data-start" })}
+    ${renderTabs({
+      items: SIGNAL_MODES,
+      activeValue: session.mode,
+      attribute: "data-start-mode",
+      className: "start-mode-tabs",
+      idPrefix: "start-tab",
+      containerAttrs: { "aria-label": "Chọn loại tín hiệu" }
+    })}
+    ${renderButton({ label: "Bắt đầu", className: "button--secondary", attrs: { "data-start": true } })}
     ${backLink}`;
 }
 
+/**
+ * Render the timed practice screen. State lives in a pure session object, the
+ * view is redrawn from it, and listeners are delegated from `app` once and
+ * removed by the returned cleanup function.
+ */
 export function renderAdvancedPractice(app) {
-  const session = createAdvancedSession({
-    createQuestion: (mode) => createChoiceQuestion({ data: mode === "morse" ? MORSE_LETTERS : SEMAPHORE_CODE })
-  });
+  const session = createAdvancedSession({ createQuestion: createModeQuestion });
   let interval = null;
   let autoPlayTimer = null;
   let firstDraw = true;
@@ -70,12 +60,6 @@ export function renderAdvancedPractice(app) {
     window.clearTimeout(autoPlayTimer);
     autoPlayTimer = null;
   }
-
-  cleanupAdvanced = () => {
-    stopTimer();
-    stopAutoPlay();
-    cancelMorseAudio();
-  };
 
   function finish(reason) {
     stopTimer();
@@ -99,21 +83,45 @@ export function renderAdvancedPractice(app) {
     }, 50);
   }
 
-  function startGame() {
-    session.start();
-    draw();
-  }
-
   function answer(value) {
     const result = session.answer(value);
     if (result === "wrong") finish(session.reason);
     else if (result === "correct") draw();
   }
 
+  function onClick(event) {
+    const target = event.target.closest("[data-mode], [data-start-mode], [data-start], [data-restart], [data-answer]");
+    if (!target) return;
+
+    if (target.matches("[data-answer]")) {
+      answer(target.dataset.answer);
+    } else if (target.matches("[data-mode]")) {
+      if (target.dataset.mode === session.mode) return;
+      session.setMode(target.dataset.mode);
+      draw();
+    } else if (target.matches("[data-start-mode]")) {
+      session.setMode(target.dataset.startMode);
+      setActiveTab(target.closest('[role="tablist"]'), target);
+    } else if (target.matches("[data-start]")) {
+      session.start();
+      draw();
+    } else {
+      session.restart();
+      draw();
+    }
+  }
+
+  function onKeydown(event) {
+    if (hasShortcutModifier(event) || session.needsDialog) return;
+    const option = getOptionForKey(event, session.question.options);
+    if (option !== undefined) answer(String(option));
+  }
+
   /**
    * The dialog is mandatory: it holds the only Start / Restart control, so Esc
-   * must never leave the page without one. Block `cancel`, and reopen on `close`
-   * for browsers that close on a repeated Esc despite preventDefault.
+   * must never leave the page without one. Block Esc at keydown and `cancel`,
+   * and reopen on `close` for browsers that close despite preventDefault.
+   * (`cancel` and `close` do not bubble, so these stay on the dialog itself.)
    */
   function bindDialog(dialog) {
     dialog.addEventListener("keydown", (event) => {
@@ -122,19 +130,6 @@ export function renderAdvancedPractice(app) {
     dialog.addEventListener("cancel", (event) => event.preventDefault());
     dialog.addEventListener("close", () => {
       if (session.needsDialog && dialog.isConnected) dialog.showModal();
-    });
-
-    const startTabs = dialog.querySelector('[role="tablist"]');
-    dialog.querySelectorAll("[data-start-mode]").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        session.setMode(tab.dataset.startMode);
-        setActiveTab(startTabs, tab);
-      });
-    });
-    dialog.querySelector("[data-start]")?.addEventListener("click", startGame);
-    dialog.querySelector("[data-restart]")?.addEventListener("click", () => {
-      session.restart();
-      draw();
     });
 
     dialog.showModal();
@@ -147,7 +142,6 @@ export function renderAdvancedPractice(app) {
 
     const playing = !session.needsDialog;
     const options = playing ? session.question.options.map((value) => renderQuizOption({ value })).join("") : "";
-    const activeTabId = `tab-${session.mode}`;
 
     app.innerHTML = `
       <section>
@@ -164,11 +158,18 @@ export function renderAdvancedPractice(app) {
               <span>Streak <strong>${session.correct}</strong></span>
               <span>Giới hạn <strong>${(session.limit / 1000).toFixed(2)}s</strong></span>
             </div>
-            ${playing ? renderTabs({ items: MODE_ITEMS, activeValue: session.mode, attribute: "data-mode", className: "tabs--compact", panelId: "advanced-panel", containerAttributes: 'aria-label="Chọn chế độ"' }) : ""}
-            <div id="advanced-panel" role="tabpanel" ${playing ? `aria-labelledby="${activeTabId}"` : 'aria-label="Câu hỏi"'}>
+            ${playing ? renderTabs({
+              items: SIGNAL_MODES,
+              activeValue: session.mode,
+              attribute: "data-mode",
+              className: "tabs--compact",
+              panelId: "advanced-panel",
+              containerAttrs: { "aria-label": "Chọn chế độ" }
+            }) : ""}
+            <div id="advanced-panel" role="tabpanel" ${playing ? `aria-labelledby="tab-${escapeHtml(session.mode)}"` : 'aria-label="Câu hỏi"'}>
               <div class="quiz-timer" aria-label="Thời gian còn lại"><div data-time-meter></div></div>
               <div class="quiz-timer__label" data-time-label>${(session.limit / 1000).toFixed(1)}s</div>
-              <div class="quiz__signal">${renderPrompt(session)}</div>
+              <div class="quiz__signal">${playing ? renderQuestionPrompt(session) : "Sẵn sàng?"}</div>
               <div class="quiz__options">${options}</div>
             </div>
           </article>
@@ -178,18 +179,6 @@ export function renderAdvancedPractice(app) {
     `.trim();
     firstDraw = false;
 
-    app.querySelectorAll("[data-mode]").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        if (tab.dataset.mode === session.mode) return;
-        session.setMode(tab.dataset.mode);
-        draw();
-      });
-    });
-    app.querySelectorAll("[data-answer]").forEach((button) => {
-      button.addEventListener("click", () => answer(button.dataset.answer));
-    });
-    bindTablistKeyboard(app);
-
     const dialog = app.querySelector("[data-session-dialog]");
     if (dialog) {
       bindDialog(dialog);
@@ -197,13 +186,23 @@ export function renderAdvancedPractice(app) {
     }
 
     startTimer();
-    if (session.mode === "morse") {
-      autoPlayTimer = window.setTimeout(() => {
-        autoPlayTimer = null;
-        playMorseCharacter(session.question.prompt).catch(() => {});
-      }, 0);
-    }
+    autoPlayTimer = window.setTimeout(() => {
+      autoPlayTimer = null;
+      playPrompt(session.mode, session.question);
+    }, 0);
   }
 
+  const unbindTabs = bindTablistKeyboard(app);
+  app.addEventListener("click", onClick);
+  document.addEventListener("keydown", onKeydown);
   draw();
+
+  return () => {
+    stopTimer();
+    stopAutoPlay();
+    cancelMorseAudio();
+    unbindTabs();
+    app.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKeydown);
+  };
 }

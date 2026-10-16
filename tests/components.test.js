@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { renderButton } from "../src/components/common/Button.js";
 import { renderTabs } from "../src/components/common/Tabs.js";
+import { renderVersionBadge } from "../src/components/updates/VersionBadge.js";
 import { renderSignalCard } from "../src/components/learn/SignalCard.js";
 import { renderQuizOption } from "../src/components/practice/QuizOption.js";
 import { renderSemaphoreImage } from "../src/components/common/SemaphoreImage.js";
@@ -28,7 +29,7 @@ test("shared renderers escape interpolated text", () => {
 });
 
 test("renderSignalCard composes a signal card", () => {
-  const html = renderSignalCard({ character: "A", content: " .- ", actions: "Play" });
+  const html = renderSignalCard({ character: "A", contentHtml: " .- ", actionsHtml: "Play" });
   assert.match(html, /alphabet-card__letter">A/);
   assert.match(html, /Play/);
 });
@@ -57,4 +58,36 @@ test("renderTabs uses idPrefix so two tablists never share ids", () => {
   const items = [{ value: "morse", label: "Morse" }];
   assert.match(renderTabs({ items, activeValue: "morse" }), /id="tab-morse"/);
   assert.match(renderTabs({ items, activeValue: "morse", idPrefix: "start-tab" }), /id="start-tab-morse"/);
+});
+
+test("renderButton and renderTabs render attribute objects with escaping", () => {
+  const button = renderButton({ label: "Go", attrs: { "data-start": true, hidden: false, title: '"x"' } });
+  assert.match(button, /data-start(?!=)/);
+  assert.doesNotMatch(button, /hidden/);
+  assert.match(button, /title="&quot;x&quot;"/);
+  assert.match(renderTabs({ items: [{ value: "a", label: "A" }], activeValue: "a", containerAttrs: { "aria-label": "Chọn" } }), /aria-label="Chọn"/);
+});
+
+test("renderSignalCard escapes the character but keeps trusted markup", () => {
+  const html = renderSignalCard({ character: "<b>", contentHtml: "<i>ok</i>" });
+  assert.match(html, /&lt;b&gt;/);
+  assert.match(html, /<i>ok<\/i>/);
+});
+
+test("renderVersionBadge escapes release fields", () => {
+  const html = renderVersionBadge({ version: "<1>", date: "<d>" });
+  assert.doesNotMatch(html, /<1>|<d>/);
+});
+
+test("renderQuestionPrompt follows the mode kind", async () => {
+  const { renderQuestionPrompt } = await import("../src/components/practice/QuestionPrompt.js");
+  assert.equal(renderQuestionPrompt({ mode: "morse", question: { prompt: ".-", key: "A" } }), ".-");
+  assert.match(renderQuestionPrompt({ mode: "semaphore", question: { prompt: "x", key: "A" } }), /<svg/);
+});
+
+test("every signal mode has a Learn grid renderer", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const learn = await readFile(new URL("../src/pages/LearnPage.js", import.meta.url), "utf8");
+  const { SIGNAL_MODES } = await import("../src/features/signals/modes.js");
+  for (const mode of SIGNAL_MODES) assert.match(learn, new RegExp(`${mode.value}: render`));
 });

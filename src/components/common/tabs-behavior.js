@@ -1,26 +1,31 @@
 /**
- * Roving-tabindex keyboard support for every tablist inside `root`.
+ * Roving-tabindex keyboard support for every tablist inside `root`, using one
+ * delegated listener so it survives innerHTML redraws.
  *
  * Arrow keys only move within the tablist that owns the focused tab, so a
  * second tablist on the page (e.g. inside a dialog) is never reached by accident.
+ *
+ * @returns {() => void} Function that removes the listener.
  */
 export function bindTablistKeyboard(root) {
-  root.querySelectorAll('[role="tablist"]').forEach((tablist) => {
-    tablist.addEventListener("keydown", (event) => {
-      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
-      const tab = event.target.closest('[role="tab"]');
-      if (!tab) return;
+  function onKeydown(event) {
+    if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+    const tab = event.target.closest?.('[role="tab"]');
+    const tablist = tab?.closest('[role="tablist"]');
+    if (!tablist) return;
 
-      const tabs = [...tablist.querySelectorAll('[role="tab"]')];
-      const delta = event.key === "ArrowRight" ? 1 : -1;
-      const next = tabs[(tabs.indexOf(tab) + delta + tabs.length) % tabs.length];
+    const tabs = [...tablist.querySelectorAll('[role="tab"]')];
+    const delta = event.key === "ArrowRight" ? 1 : -1;
+    const next = tabs[(tabs.indexOf(tab) + delta + tabs.length) % tabs.length];
 
-      event.preventDefault();
-      next.click();
-      // Click handlers may redraw the page, so look the tab up again by id.
-      (document.getElementById(next.id) || next).focus();
-    });
-  });
+    event.preventDefault();
+    next.click();
+    // Click handlers may redraw the page, so look the tab up again by id.
+    (document.getElementById(next.id) || next).focus();
+  }
+
+  root.addEventListener("keydown", onKeydown);
+  return () => root.removeEventListener("keydown", onKeydown);
 }
 
 /**
