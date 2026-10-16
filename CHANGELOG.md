@@ -4,6 +4,20 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 Định dạng dựa trên Keep a Changelog và đã được Việt hóa để dễ đọc hơn.
 
+## [Unreleased]
+
+### Sửa lỗi
+- Luyện tập nâng cao: phím Esc không còn làm mất nút Bắt đầu / Bắt đầu lại; tab không còn trùng ID và điều hướng mũi tên chỉ di chuyển trong đúng bộ tab.
+- Router xóa toàn bộ class `route-*` cũ và dùng `route-not-found` cho đường dẫn không tồn tại.
+- Trang Luyện tập không còn chừa cột trống trên màn hình rộng.
+- Phím tắt không chặn phím Space/Enter khi đang focus nút, và bỏ qua tổ hợp Ctrl/Alt/Meta.
+- Parser changelog không gộp mục của heading không hợp lệ vào phiên bản trước.
+
+### Thay đổi
+- Tách logic phiên luyện tập nâng cao ra `features/practice/` và viết lại trang cho dễ đọc.
+- Báo lỗi phát âm thanh ngay trên trang thay cho `window.alert`.
+- Workflow deploy chạy `npm test` và chỉ đăng các file cần thiết lên Pages.
+
 ## [1.1.0] - 2026-10-12
 
 ### Thêm

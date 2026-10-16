@@ -14,14 +14,21 @@ export function parseChangelog(markdown) {
     const groupMatch = line.match(/^### (Added|Changed|Fixed|Deprecated|Removed|Security|Thêm|Thay đổi|Sửa lỗi|Đã sửa|Ngừng hỗ trợ|Xóa|Bảo mật)$/i);
     const itemMatch = line.match(/^- (.+)$/);
 
-    if (releaseMatch) {
+    if (line.startsWith("## ") && !releaseMatch) {
+      // Unreleased or malformed headings must not leak their items into the
+      // previous version.
+      release = null;
+      group = null;
+    } else if (line.startsWith("### ") && !groupMatch) {
+      group = null;
+    } else if (releaseMatch) {
       release = { version: releaseMatch[1], date: releaseMatch[2], changes: {} };
       releases.push(release);
       group = null;
     } else if (groupMatch && release) {
       const groupNames = { thêm: "added", "thay đổi": "changed", "sửa lỗi": "fixed", "đã sửa": "fixed", "ngừng hỗ trợ": "deprecated", "xóa": "removed", "bảo mật": "security" };
       group = groupNames[groupMatch[1].toLowerCase()] || groupMatch[1].toLowerCase();
-      release.changes[group] = [];
+      release.changes[group] ||= [];
     } else if (itemMatch && release && group) {
       release.changes[group].push(itemMatch[1]);
     }

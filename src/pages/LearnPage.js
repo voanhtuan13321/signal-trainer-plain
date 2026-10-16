@@ -4,6 +4,7 @@ import { playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
 import { renderButton } from "../components/common/Button.js";
 import { renderTabs } from "../components/common/Tabs.js";
+import { bindTablistKeyboard } from "../components/common/tabs-behavior.js";
 import { renderSignalCard } from "../components/learn/SignalCard.js";
 
 /**
@@ -81,6 +82,7 @@ export function renderLearn(app) {
             </div>
             ${renderTabs({ items: [{ value: "morse", label: "Morse" }, { value: "semaphore", label: "Semaphore" }], activeValue: activeTab, panelId: "learn-panel", containerAttributes: 'aria-label="Chọn loại tín hiệu"' })}
           </div>
+          <p class="feedback feedback--danger" data-audio-error role="alert" hidden></p>
           <div id="learn-panel" role="tabpanel" aria-labelledby="tab-${activeTab}">
             ${activeTab === "morse" ? renderMorseGrid() : renderSemaphoreGrid()}
           </div>
@@ -93,25 +95,19 @@ export function renderLearn(app) {
         activeTab = button.getAttribute("data-tab");
         draw();
       });
-      button.addEventListener("keydown", (event) => {
-        if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
-        const tabs = [...app.querySelectorAll('[role="tab"]')];
-        const currentIndex = tabs.indexOf(button);
-        const delta = event.key === "ArrowRight" ? 1 : -1;
-        const next = tabs[(currentIndex + delta + tabs.length) % tabs.length];
-        event.preventDefault();
-        next.click();
-        requestAnimationFrame(() => app.querySelector(`[data-tab="${next.getAttribute("data-tab")}"]`)?.focus());
-      });
     });
+    bindTablistKeyboard(app);
 
     app.querySelectorAll("[data-play-morse]").forEach((button) => {
       button.addEventListener("click", async () => {
+        const errorBox = app.querySelector("[data-audio-error]");
         try {
+          errorBox.hidden = true;
           button.disabled = true;
           await playMorseCharacter(button.getAttribute("data-play-morse"));
         } catch (error) {
-          window.alert(error.message);
+          errorBox.textContent = error.message;
+          errorBox.hidden = false;
         } finally {
           button.disabled = false;
         }

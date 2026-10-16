@@ -29,19 +29,22 @@ html { scroll-padding-bottom: var(--bottom-nav-space); }
    reserves its own viewport space, so these routes must not add a second page
    scroll area through the main min-height calculation. */
 body.route-home,
-body.route-practice {
+body.route-practice,
+body.route-advanced-practice {
   min-height: 100svh;
   padding-bottom: 0;
   overflow-x: hidden;
 }
 
 body.route-home .app-shell,
-body.route-practice .app-shell {
+body.route-practice .app-shell,
+body.route-advanced-practice .app-shell {
   min-height: 100svh;
 }
 
 body.route-home .main,
-body.route-practice .main {
+body.route-practice .main,
+body.route-advanced-practice .main {
   min-height: 0;
 }
 
@@ -116,10 +119,6 @@ body.route-practice .main {
 
   .main {
     padding-bottom: var(--space-6);
-  }
-
-  .practice-layout {
-    grid-template-columns: 1fr 280px;
   }
 
   .hero__content {

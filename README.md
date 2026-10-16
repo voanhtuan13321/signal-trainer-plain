@@ -17,6 +17,7 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/pages/AdvancedPracticePage.js`: timed high-speed practice, opened from the regular Practice page
 - `src/components/`: UI grouped into `common`, `learn`, `practice`, and `updates`
 - `src/lib/`: framework-independent quiz logic
+- `src/features/practice/`: testable practice session logic
 - `src/data/`: domain data split into `app-meta.js`, `morse.js`, and `semaphore.js`
 - `src/services/`: browser services such as Morse Web Audio playback
 - `src/lib/semaphore-svg.js`: vector Semaphore renderer
@@ -41,6 +42,7 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 1. Update `src/data/app-meta.js` with the new version and release date
 2. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
+3. Run `npm test`
 4. Commit the release changes
 5. Create and push a git tag
 6. Create a GitHub Release using the changelog content
@@ -50,17 +52,17 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ```bash
 git add .
-git commit -m "release: v0.1.0"
-git tag signal-trainer-plain-v0.1.0
+git commit -m "release: vX.Y.Z"
+git tag signal-trainer-plain-vX.Y.Z
 git push origin main
-git push origin signal-trainer-plain-v0.1.0
+git push origin signal-trainer-plain-vX.Y.Z
 ```
 
 ## Tag Format
 
 Use this release tag format:
 
-- `signal-trainer-plain-v0.1.0`
+- `signal-trainer-plain-vX.Y.Z` (for example `signal-trainer-plain-v1.1.0`)
 
 This keeps the project name and version together so release tags stay unambiguous.
 

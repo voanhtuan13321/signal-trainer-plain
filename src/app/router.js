@@ -6,6 +6,7 @@ import {
 } from "../pages/PracticePage.js";
 import { renderNotFound } from "../pages/NotFoundPage.js";
 import { renderUpdates } from "../pages/UpdatesPage.js";
+import { clearRouteClasses, resolveRoute } from "./route-utils.js";
 import { cleanupAdvancedPractice, renderAdvancedPractice } from "../pages/AdvancedPracticePage.js";
 
 /**
@@ -29,27 +30,19 @@ export function createRouter(app) {
     cleanupPractice();
     cleanupAdvancedPractice();
 
-    const rawHash = window.location.hash.slice(1) || "/";
-    const path = rawHash.split("?")[0];
-    const render = routes[path] || (() => renderNotFound(app));
+    const { path, known, className } = resolveRoute(window.location.hash, routes);
+    const render = known ? routes[path] : () => renderNotFound(app);
 
     // Route state belongs on body so layout rules can react without rebuilding
     // the persistent header and navigation markup.
-    document.body.classList.remove("route-home", "route-learn", "route-practice");
-    document.body.classList.add(
-      path === "/" ? "route-home" : `route-${path.slice(1) || "not-found"}`,
-    );
+    clearRouteClasses(document.body);
+    document.body.classList.add(className);
 
     render();
 
     document.querySelectorAll("[data-nav]").forEach((link) => {
       link.classList.toggle("is-active", link.getAttribute("data-nav") === path);
     });
-
-    // Restart the page-enter animation on hash navigation without changing markup.
-    app.classList.remove("page-enter");
-    void app.offsetWidth;
-    app.classList.add("page-enter");
 
     // Mobile Safari may keep the scroll offset on both scrolling roots. Reset
     // both explicitly so the persistent header is never left above the viewport.

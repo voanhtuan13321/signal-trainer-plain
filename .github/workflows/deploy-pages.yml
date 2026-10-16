@@ -20,7 +20,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    name: "🧪 Run Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "📥 Checkout Source"
+        uses: actions/checkout@v6
+
+      - name: "⚙️ Setup Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: "🧪 Run Tests"
+        run: npm test
+
   build:
+    needs: test
     name: "📦 Build Pages Artifact"
     runs-on: ubuntu-latest
     steps:
@@ -30,10 +46,16 @@ jobs:
       - name: "⚙️ Setup GitHub Pages"
         uses: actions/configure-pages@v5
 
+      - name: "📦 Stage Site Files"
+        # Publish only what the browser needs, not tests, scripts or docs.
+        run: |
+          mkdir _site
+          cp -r index.html favicon.svg CHANGELOG.md src styles _site/
+
       - name: "🗂️ Upload Pages Artifact"
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: _site
 
   deploy:
     name: "🌍 Deploy to GitHub Pages"

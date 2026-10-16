@@ -52,3 +52,9 @@ test("semaphore SVG provides a complete pose for every letter", () => {
 test("SemaphoreImage resolves its data and SVG dependencies from common", () => {
   assert.match(renderSemaphoreImage("A"), /<svg/);
 });
+
+test("renderTabs uses idPrefix so two tablists never share ids", () => {
+  const items = [{ value: "morse", label: "Morse" }];
+  assert.match(renderTabs({ items, activeValue: "morse" }), /id="tab-morse"/);
+  assert.match(renderTabs({ items, activeValue: "morse", idPrefix: "start-tab" }), /id="start-tab-morse"/);
+});

@@ -4,6 +4,7 @@ import { cancelMorseAudio, playMorseCharacter } from "../services/morseAudio.js"
 import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
 import { createChoiceQuestion, isCorrectAnswer } from "../lib/quiz.js";
 import { renderTabs } from "../components/common/Tabs.js";
+import { bindTablistKeyboard } from "../components/common/tabs-behavior.js";
 import { renderButton } from "../components/common/Button.js";
 import { renderQuizOption } from "../components/practice/QuizOption.js";
 
@@ -21,7 +22,7 @@ export function cleanupPractice() {
  * Release the active keyboard shortcut handler, if the practice view installed
  * one during its latest render cycle.
  */
-export function cleanupPracticeKeyboardHandler() {
+function cleanupPracticeKeyboardHandler() {
   if (!currentKeyboardHandler) {
     return;
   }
@@ -65,7 +66,6 @@ function renderQuestionOptions(state) {
 export function renderPractice(app) {
   const state = {
     mode: "morse",
-    direction: "value-to-key",
     question: null,
     answered: false,
     showNextButton: false,
@@ -101,8 +101,7 @@ export function renderPractice(app) {
     state.feedbackMessage = "";
     state.feedbackClassName = "feedback";
     state.question = createChoiceQuestion({
-      data: state.mode === "morse" ? MORSE_LETTERS : SEMAPHORE_CODE,
-      direction: state.mode === "morse" ? state.direction : "value-to-key"
+      data: state.mode === "morse" ? MORSE_LETTERS : SEMAPHORE_CODE
     });
   }
 
@@ -234,6 +233,16 @@ export function renderPractice(app) {
     // Keyboard shortcuts intentionally mirror the visible option order so the
     // same flow works on desktop without adding extra UI text.
     currentKeyboardHandler = (event) => {
+      // Browser and OS shortcuts (Ctrl+1 switches tabs, etc.) are not ours.
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+
+      // Focused controls already handle Space/Enter themselves; hijacking the
+      // key would break keyboard activation or fire the action twice.
+      const onControl = event.target instanceof Element &&
+        event.target.closest("button, a, input, select, textarea, [role='tab']");
+
       if (["1", "2", "3", "4"].indexOf(event.key) !== -1) {
         if (state.answered) {
           return;
@@ -245,14 +254,14 @@ export function renderPractice(app) {
         }
       }
 
-      if (event.key === "Enter" && state.answered) {
+      if (event.key === "Enter" && state.answered && !onControl) {
         nextQuestion();
       }
 
       if (
         event.code === "Space" &&
         state.mode === "morse" &&
-        state.direction === "value-to-key"
+        !onControl
       ) {
         event.preventDefault();
         playMorseCharacter(state.question.prompt).catch(() => {});
@@ -294,6 +303,7 @@ export function renderPractice(app) {
       </section>
     `.trim();
 
+    bindTablistKeyboard(app);
     bindPracticeEvents();
   }
 
