@@ -1,0 +1,66 @@
+name: "📦 GitHub Release on Tag"
+
+on:
+  # Create the release when a project-version tag is pushed.
+  push:
+    tags:
+      - "signal-trainer-plain-v*"
+  # Backfill a release for a tag that already exists (enter the tag name).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag, for example signal-trainer-plain-v1.2.0"
+        required: true
+
+permissions:
+  # Creating a release needs write access to repository contents.
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  release:
+    name: "📦 Create Release"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "📥 Checkout Tag"
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: "🔎 Check Tag Matches App Version"
+        run: |
+          version="${TAG#signal-trainer-plain-v}"
+          app_version=$(sed -n 's/.*version: *"\([^"]*\)".*/\1/p' src/data/app-meta.js)
+          if [ "$version" != "$app_version" ]; then
+            echo "::error::Tag version $version does not match APP_META.version $app_version"
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: "📝 Extract Release Notes From CHANGELOG"
+        run: |
+          awk -v header="## [$VERSION]" '
+            index($0, header) == 1 { found = 1; next }
+            index($0, "## [") == 1 { found = 0 }
+            found
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::No CHANGELOG.md section found for version $VERSION"
+            exit 1
+          fi
+
+      - name: "🚀 Create or Update GitHub Release"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "v$VERSION" --notes-file release-notes.md
+          else
+            gh release create "$TAG" --verify-tag --title "v$VERSION" --notes-file release-notes.md
+          fi

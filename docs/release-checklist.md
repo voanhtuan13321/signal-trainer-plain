@@ -19,9 +19,11 @@
 
 ## GitHub Release
 
-- Create a new GitHub Release from the tag
-- Paste the matching section from `CHANGELOG.md`
+- Pushing the tag runs the `Release` workflow, which creates the GitHub Release automatically
+  (title `vX.Y.Z`, notes taken from the matching `CHANGELOG.md` section)
+- The workflow fails if the tag version differs from `APP_META.version` or the changelog section is missing
 - Check that title, version, and date all match
+- For an existing tag, run the workflow manually from the Actions tab and enter the tag name
 
 ## After Release
 
