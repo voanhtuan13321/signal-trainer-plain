@@ -6,6 +6,12 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 ## [Unreleased]
 
+### Thêm
+- Workflow tự tạo GitHub Release khi đẩy tag `signal-trainer-plain-v*`, lấy ghi chú từ `CHANGELOG.md` và kiểm tra tag khớp phiên bản trong `app-meta.js`.
+
+### Thay đổi
+- Nâng các GitHub Action lên bản chạy Node 24 (`setup-node` v7, `configure-pages` v6, `upload-pages-artifact` v5) để hết cảnh báo Node.js 20 deprecated.
+
 ## [1.2.0] - 2026-10-17
 
 ### Thêm
