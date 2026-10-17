@@ -6,6 +6,8 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-17
+
 ### Thêm
 - Workflow tự tạo GitHub Release khi đẩy tag `signal-trainer-plain-v*`, lấy ghi chú từ `CHANGELOG.md` và kiểm tra tag khớp phiên bản trong `app-meta.js`.
 
