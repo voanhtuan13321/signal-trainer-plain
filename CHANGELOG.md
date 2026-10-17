@@ -6,24 +6,34 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-17
+
+### Thêm
+- Lưu kỷ lục luyện tập và thử thách tốc độ trên thiết bị (localStorage), giữ lại sau khi tải lại trang và hiển thị trên bảng điểm kiểu arcade.
+- Font Press Start 2P và VT323 được tự host trong `styles/fonts/`, chạy được khi offline và không phụ thuộc Google Fonts.
+- Tiêu đề tab đổi theo từng trang, focus chuyển về vùng nội dung sau khi đổi trang, hộp thoại có tên truy cập và tín hiệu Morse được đọc là "chấm/vạch".
+- Màn hình báo lỗi khi một trang gặp lỗi lúc dựng, thay cho trang trống; thông báo cho người dùng tắt JavaScript.
+- Thanh nhảy nhanh tới ký tự và nút nghe gọn trên từng thẻ ở trang Học.
+- Phím 1–4 chọn đáp án trong thử thách tốc độ.
+- Lệnh `npm start` chạy máy chủ phát triển; workflow chạy `npm test` cho mỗi lần push lên `main` và mỗi pull request.
+
+### Thay đổi
+- Đổi giao diện sang phong cách pixel art 8-bit: viền pixel bằng box-shadow, không bo góc, lớp CRT scanline, thanh cuộn dày, hiệu ứng nhấp nháy/nổi theo bước; favicon và `theme-color` khớp giao diện mới.
+- Trang chủ gọn lại thành ba lối vào theo lộ trình học (Bảng tín hiệu → Luyện tập → Thử thách tốc độ) như thanh điều hướng; thẻ nổi bật là Bảng tín hiệu với người mới và Luyện tập với người đã có kỷ lục.
+- Màn luyện tập: tín hiệu Morse vẽ bằng chấm và vạch, đáp án lớn có gợi ý phím 1–4, thêm chuỗi đúng và số câu đúng, đúng/sai tô xanh/đỏ rõ.
+- Bảng Morse xếp chữ cái trước, chữ số sau (cả lưới lẫn thanh nhảy); chấm và vạch trên thẻ được vẽ thành khối pixel.
+- Trang nâng cao đổi tên thành "Thử thách tốc độ", vừa một màn hình khi đang tính giờ và giữ kỷ lục khi đổi chế độ; câu chữ trang 404 và mô tả trang bằng tiếng Việt dễ hiểu hơn.
+- Thanh điều hướng có biểu tượng một dòng, nút chính màu đặc, tương phản cao; trang Cập nhật hiển thị đoạn mã trong dấu backtick thay vì in nguyên dấu.
+- Tách logic phiên luyện tập thường và nâng cao ra `features/practice/`, thêm danh sách chế độ tín hiệu dùng chung, component nhận `attrs` và trang tự dọn dẹp qua hàm cleanup.
+- Báo lỗi phát âm thanh ngay trên trang thay cho `window.alert`.
+- Workflow deploy chạy `npm test` trước và chỉ đăng các file cần thiết lên Pages.
+
 ### Sửa lỗi
-- Nút "Câu tiếp theo" và footer không còn hiện trước khi trả lời.
-- Màn thử thách tốc độ vừa một màn hình, không phải cuộn khi đang tính giờ; kỷ lục được giữ khi đổi chế độ.
-- Changelog hiển thị đoạn mã trong dấu backtick thay vì in nguyên dấu.
-- Luyện tập nâng cao: phím Esc không còn làm mất nút Bắt đầu / Bắt đầu lại; tab không còn trùng ID và điều hướng mũi tên chỉ di chuyển trong đúng bộ tab.
+- Thử thách tốc độ: phím Esc không còn đóng hộp thoại bắt buộc (mất nút Bắt đầu / Bắt đầu lại); tab không còn trùng ID và điều hướng mũi tên chỉ di chuyển trong đúng bộ tab.
 - Router xóa toàn bộ class `route-*` cũ và dùng `route-not-found` cho đường dẫn không tồn tại.
 - Trang Luyện tập không còn chừa cột trống trên màn hình rộng.
 - Phím tắt không chặn phím Space/Enter khi đang focus nút, và bỏ qua tổ hợp Ctrl/Alt/Meta.
 - Parser changelog không gộp mục của heading không hợp lệ vào phiên bản trước.
-
-### Thay đổi
-- Thiết kế lại giao diện: nền đặc, tương phản cao, nút chính màu đặc, thanh điều hướng có biểu tượng một dòng.
-- Màn luyện tập: tín hiệu Morse vẽ bằng chấm và vạch, đáp án lớn có gợi ý phím 1–4, thêm chuỗi đúng và số câu đúng, đúng/sai tô xanh/đỏ rõ.
-- Trang Học: nút nghe gọn trên từng thẻ và thanh nhảy nhanh tới ký tự.
-- Trang chủ gọn lại thành ba lối vào: Luyện tập, Bảng tín hiệu, Thử thách tốc độ.
-- Tách logic phiên luyện tập nâng cao ra `features/practice/` và viết lại trang cho dễ đọc.
-- Báo lỗi phát âm thanh ngay trên trang thay cho `window.alert`.
-- Workflow deploy chạy `npm test` và chỉ đăng các file cần thiết lên Pages.
 
 ## [1.1.0] - 2026-10-12
 

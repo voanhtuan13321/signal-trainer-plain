@@ -1,11 +1,11 @@
 import { MORSE_CODE } from "../data/morse.js";
-import { SEMAPHORE_CODE } from "../data/semaphore.js";
 import { cancelMorseAudio, playMorseCharacter } from "../services/morseAudio.js";
 import { renderSemaphoreImage } from "../components/common/SemaphoreImage.js";
 import { renderButton } from "../components/common/Button.js";
 import { renderTabs } from "../components/common/Tabs.js";
 import { bindTablistKeyboard } from "../components/common/tabs-behavior.js";
 import { renderSignalCard } from "../components/learn/SignalCard.js";
+import { renderMorseShapes } from "../components/practice/QuestionPrompt.js";
 import { DEFAULT_MODE, SIGNAL_MODES, getSignalMode } from "../features/signals/modes.js";
 
 /**
@@ -28,13 +28,13 @@ function getLearnTabFromHash() {
  * Render the Morse reference cards; play buttons are wired by delegation.
  */
 function renderMorseGrid() {
-  const cards = Object.keys(MORSE_CODE)
+  const cards = getSignalMode("morse").referenceOrder
     .map((character) => {
       const code = MORSE_CODE[character];
 
       return renderSignalCard({
         character,
-        contentHtml: `<div class="morse-code">${code}</div>`,
+        contentHtml: `<div class="morse-code">${renderMorseShapes(code, "morse-signal--small")}</div>`,
         actionsHtml: renderButton({
           label: "▶",
           className: "button--icon",
@@ -46,7 +46,7 @@ function renderMorseGrid() {
 
   return `
     <div class="callout">Chấm = 1 đơn vị, vạch = 3 đơn vị. Bấm ▶ để nghe.</div>
-    <div class="grid grid--alphabet section tab-panel">${cards}</div>
+    <div class="grid grid--alphabet tab-panel">${cards}</div>
   `.trim();
 }
 
@@ -54,7 +54,7 @@ function renderMorseGrid() {
  * Render pre-generated Semaphore cards. Image path ownership stays in data.
  */
 function renderSemaphoreGrid() {
-  const cards = Object.keys(SEMAPHORE_CODE)
+  const cards = getSignalMode("semaphore").referenceOrder
     .map((character) =>
       renderSignalCard({
         character,
@@ -63,12 +63,12 @@ function renderSemaphoreGrid() {
     )
     .join("");
 
-  return `<div class="grid grid--alphabet section tab-panel">${cards}</div>`;
+  return `<div class="grid grid--alphabet tab-panel">${cards}</div>`;
 }
 
 /** Horizontal strip of characters that scrolls the grid to a card. */
 function renderJumpBar(modeValue) {
-  const chips = Object.keys(getSignalMode(modeValue).referenceData)
+  const chips = getSignalMode(modeValue).referenceOrder
     .map((character) => `<button class="chip" type="button" data-jump="${character}">${character}</button>`)
     .join("");
   return `<nav class="jump-bar" aria-label="Nhảy tới ký tự">${chips}</nav>`;

@@ -11,14 +11,14 @@ export function getAdvancedTimeLimit(correctCount) {
 /**
  * Timed practice session state, free of DOM and timers so it can be tested.
  *
- * @param {{ createQuestion: (mode: string) => object, now?: () => number }} deps
+ * @param {{ createQuestion: (mode: string) => object, now?: () => number, best?: number }} deps
  */
-export function createAdvancedSession({ createQuestion, now = () => performance.now() }) {
+export function createAdvancedSession({ createQuestion, now = () => performance.now(), best = 0 }) {
   const session = {
     mode: "morse",
     question: null,
     correct: 0,
-    best: 0,
+    best,
     startedAt: 0,
     started: false,
     ended: false,
@@ -54,7 +54,7 @@ export function createAdvancedSession({ createQuestion, now = () => performance.
     setMode(mode) {
       session.mode = mode;
       if (session.started && !session.ended) {
-        session.best = Math.max(session.best, session.correct);
+        session.commitBest();
         session.correct = 0;
         session.nextQuestion();
       }
@@ -76,10 +76,15 @@ export function createAdvancedSession({ createQuestion, now = () => performance.
       if (session.ended) return;
       session.ended = true;
       session.reason = reason;
+      session.commitBest();
+    },
+
+    /** Fold the running streak into the best score (also when leaving mid-run). */
+    commitBest() {
       session.best = Math.max(session.best, session.correct);
     },
 
-    /** Back to the start dialog; the best streak is kept for this visit. */
+    /** Back to the start dialog; the best streak is kept. */
     restart() {
       session.started = false;
       session.ended = false;

@@ -1,7 +1,7 @@
 import { renderHome } from "../pages/HomePage.js";
 import { renderLearn } from "../pages/LearnPage.js";
 import { renderPractice } from "../pages/PracticePage.js";
-import { renderNotFound } from "../pages/NotFoundPage.js";
+import { renderError, renderNotFound } from "../pages/NotFoundPage.js";
 import { renderUpdates } from "../pages/UpdatesPage.js";
 import { renderAdvancedPractice } from "../pages/AdvancedPracticePage.js";
 import { clearRouteClasses, resolveRoute } from "./route-utils.js";
@@ -25,11 +25,26 @@ export function createRouter(app) {
     "/advanced-practice": () => renderAdvancedPractice(app)
   };
 
+  const titles = {
+    "/": "Signal Trainer",
+    "/learn": "Học bảng tín hiệu",
+    "/practice": "Luyện tập",
+    "/updates": "Cập nhật",
+    "/advanced-practice": "Thử thách tốc độ"
+  };
+
   let cleanup = null;
 
-  function renderRoute() {
+  /**
+   * @param {{ moveFocus?: boolean }} [options] `moveFocus` hands focus to the
+   *   page container so keyboard and screen-reader users land on the new
+   *   content. It runs before render, so pages (e.g. a dialog) can still take
+   *   focus themselves.
+   */
+  function renderRoute({ moveFocus = false } = {}) {
     cleanup?.();
     cleanup = null;
+    if (moveFocus) app.focus({ preventScroll: true });
 
     const { path, known, className } = resolveRoute(window.location.hash, routes);
     const render = known ? routes[path] : () => renderNotFound(app);
@@ -39,7 +54,18 @@ export function createRouter(app) {
     clearRouteClasses(document.body);
     document.body.classList.add(className);
 
-    cleanup = render() || null;
+    // Screen readers and browser history rely on the title to tell pages apart.
+    const title = known ? titles[path] : "Không tìm thấy trang";
+    document.title = path === "/" && known ? title : `${title} · Signal Trainer`;
+
+    try {
+      cleanup = render() || null;
+    } catch (error) {
+      console.error(error);
+      cleanup = null;
+      document.title = "Lỗi · Signal Trainer";
+      renderError(app);
+    }
 
     document.querySelectorAll("[data-nav]").forEach((link) => {
       const active = link.getAttribute("data-nav") === path;

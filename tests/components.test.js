@@ -83,7 +83,8 @@ test("renderVersionBadge escapes release fields", () => {
 test("renderQuestionPrompt follows the mode kind", async () => {
   const { renderQuestionPrompt } = await import("../src/components/practice/QuestionPrompt.js");
   const morse = renderQuestionPrompt({ mode: "morse", question: { prompt: ".-", key: "A" } });
-  assert.match(morse, /aria-label="\.-"/);
+  assert.match(morse, /aria-label="chấm vạch"/);
+  assert.match(morse, /data-code="\.-"/);
   assert.match(morse, /morse-dot[\s\S]*morse-dash/);
   assert.match(renderQuestionPrompt({ mode: "semaphore", question: { prompt: "x", key: "A" } }), /<svg/);
 });
@@ -99,4 +100,23 @@ test("release card renders inline code spans safely", () => {
   const html = renderReleaseCard({ version: "1.0.0", date: "2026-01-01", changes: { added: ["Dùng `<b>` thay đổi"] } });
   assert.match(html, /<code>&lt;b&gt;<\/code>/);
   assert.doesNotMatch(html, /`/);
+});
+
+test("renderScoreboard pads numbers, keeps strings and escapes text", async () => {
+  const { renderScoreboard, padScore } = await import("../src/components/practice/Scoreboard.js");
+  assert.equal(padScore(7), "007");
+  assert.equal(padScore(7, 2), "07");
+  const html = renderScoreboard([{ label: "<b>", value: 5 }, { label: "Giới hạn", value: "4.00s" }]);
+  assert.match(html, /<dd>005<\/dd>/);
+  assert.match(html, /<dd>4\.00s<\/dd>/);
+  assert.match(html, /&lt;b&gt;/);
+});
+
+test("home keeps the learning order and highlights learn for new users, practice for returning ones", async () => {
+  const { getDestinations } = await import("../src/pages/HomePage.js");
+  const fresh = getDestinations({ hasPracticed: false });
+  assert.deepEqual(fresh.map((d) => d.id), ["learn", "practice", "advanced"]);
+  assert.deepEqual(fresh.map((d) => d.tag), ["LV.01", "LV.02", "BOSS"]);
+  assert.deepEqual(fresh.filter((d) => d.primary).map((d) => d.id), ["learn"]);
+  assert.deepEqual(getDestinations({ hasPracticed: true }).filter((d) => d.primary).map((d) => d.id), ["practice"]);
 });

@@ -1,6 +1,7 @@
 import { renderTabs } from "../components/common/Tabs.js";
 import { bindTablistKeyboard, setActiveTab } from "../components/common/tabs-behavior.js";
 import { renderButton } from "../components/common/Button.js";
+import { renderScoreboard } from "../components/practice/Scoreboard.js";
 import { renderQuizOption } from "../components/practice/QuizOption.js";
 import { renderQuestionPrompt } from "../components/practice/QuestionPrompt.js";
 import { createAdvancedSession } from "../features/practice/advanced-session.js";
@@ -9,6 +10,9 @@ import { playPrompt } from "../features/signals/play-prompt.js";
 import { escapeHtml } from "../lib/escape-html.js";
 import { getOptionForKey, hasShortcutModifier } from "../lib/keyboard.js";
 import { cancelMorseAudio } from "../services/morseAudio.js";
+import { loadBest, saveBest } from "../services/storage.js";
+
+const BEST_KEY = "best-advanced";
 
 /** Start dialog before the first run, result dialog after a run ends. */
 function renderDialog(session) {
@@ -17,17 +21,17 @@ function renderDialog(session) {
   if (session.ended) {
     return `
       <div class="eyebrow">Kết thúc lượt</div>
-      <h2>${escapeHtml(session.reason)}</h2>
+      <h2 id="session-dialog-title">${escapeHtml(session.reason)}</h2>
       <p>Bạn trả lời đúng <strong>${session.correct}</strong> câu liên tiếp.</p>
-      <p>Kỷ lục trong lượt này: <strong>${session.best}</strong> câu.</p>
+      <p>Kỷ lục của bạn: <strong>${session.best}</strong> câu.</p>
       ${renderButton({ label: "Bắt đầu lại", attrs: { "data-restart": true } })}
       ${backLink}`;
   }
 
   return `
     <div class="eyebrow">Chọn chế độ</div>
-    <h2>Bắt đầu luyện tập</h2>
-    <p>Chọn loại tín hiệu để bắt đầu lượt luyện tốc độ cao.</p>
+    <h2 id="session-dialog-title">Bắt đầu luyện tập</h2>
+    <p>Chọn loại tín hiệu để bắt đầu thử thách tốc độ.</p>
     ${renderTabs({
       items: SIGNAL_MODES,
       activeValue: session.mode,
@@ -46,7 +50,8 @@ function renderDialog(session) {
  * removed by the returned cleanup function.
  */
 export function renderAdvancedPractice(app) {
-  const session = createAdvancedSession({ createQuestion: createModeQuestion });
+  const session = createAdvancedSession({ createQuestion: createModeQuestion, best: loadBest(BEST_KEY) });
+  let savedBest = session.best;
   let interval = null;
   let autoPlayTimer = null;
   let firstDraw = true;
@@ -61,9 +66,18 @@ export function renderAdvancedPractice(app) {
     autoPlayTimer = null;
   }
 
+  function persistBest() {
+    session.commitBest();
+    if (session.best > savedBest) {
+      savedBest = session.best;
+      saveBest(BEST_KEY, savedBest);
+    }
+  }
+
   function finish(reason) {
     stopTimer();
     session.finish(reason);
+    persistBest();
     draw();
   }
 
@@ -98,6 +112,7 @@ export function renderAdvancedPractice(app) {
     } else if (target.matches("[data-mode]")) {
       if (target.dataset.mode === session.mode) return;
       session.setMode(target.dataset.mode);
+      persistBest();
       draw();
     } else if (target.matches("[data-start-mode]")) {
       session.setMode(target.dataset.startMode);
@@ -149,15 +164,16 @@ export function renderAdvancedPractice(app) {
           <div class="section__header">
             <div>
               <div class="eyebrow">Tốc độ cao</div>
-              <h1>Luyện tập nâng cao</h1>
+              <h1>Thử thách tốc độ</h1>
               <p>Trả lời đúng để câu hỏi tiếp theo xuất hiện ngay và thời gian ngắn dần.</p>
             </div>
           </div>
           <article class="card advanced-quiz">
-            <div class="advanced-quiz__meta">
-              <span>Chuỗi đúng <strong>${session.correct}</strong></span>
-              <span>Giới hạn <strong>${(session.limit / 1000).toFixed(2)}s</strong></span>
-            </div>
+            ${renderScoreboard([
+              { label: "Chuỗi", value: session.correct },
+              { label: "Giới hạn", value: `${(session.limit / 1000).toFixed(2)}s` },
+              { label: "Kỷ lục", value: Math.max(session.best, session.correct) }
+            ])}
             ${playing ? renderTabs({
               items: SIGNAL_MODES,
               activeValue: session.mode,
@@ -173,7 +189,7 @@ export function renderAdvancedPractice(app) {
               <div class="quiz__options">${options}</div>
             </div>
           </article>
-          ${session.needsDialog ? `<dialog class="restart-dialog" data-session-dialog>${renderDialog(session)}</dialog>` : ""}
+          ${session.needsDialog ? `<dialog class="restart-dialog" data-session-dialog aria-labelledby="session-dialog-title">${renderDialog(session)}</dialog>` : ""}
         </div>
       </section>
     `.trim();
@@ -198,6 +214,7 @@ export function renderAdvancedPractice(app) {
   draw();
 
   return () => {
+    persistBest();
     stopTimer();
     stopAutoPlay();
     cancelMorseAudio();

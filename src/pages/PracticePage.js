@@ -3,15 +3,18 @@ import { renderTabs } from "../components/common/Tabs.js";
 import { bindTablistKeyboard } from "../components/common/tabs-behavior.js";
 import { renderButton } from "../components/common/Button.js";
 import { renderQuizOption } from "../components/practice/QuizOption.js";
+import { padScore, renderScoreboard } from "../components/practice/Scoreboard.js";
 import { renderQuestionPrompt } from "../components/practice/QuestionPrompt.js";
 import { createPracticeSession } from "../features/practice/practice-session.js";
 import { SIGNAL_MODES, createModeQuestion, getSignalMode } from "../features/signals/modes.js";
 import { playPrompt } from "../features/signals/play-prompt.js";
+import { loadBest, saveBest } from "../services/storage.js";
 import { escapeHtml } from "../lib/escape-html.js";
 import { getOptionForKey, hasShortcutModifier, isOnControl } from "../lib/keyboard.js";
 
 // Correct answers advance quickly, while wrong answers leave space to review.
 const AUTO_ADVANCE_MS = 700;
+const BEST_KEY = "best-practice";
 
 function describeOutcome({ correct, answer }) {
   return correct ? "Đúng." : `Sai. Đáp án đúng là ${String(answer)}.`;
@@ -23,7 +26,8 @@ function describeOutcome({ correct, answer }) {
  * `app` once and removed by the returned cleanup function.
  */
 export function renderPractice(app) {
-  const session = createPracticeSession({ createQuestion: createModeQuestion });
+  const session = createPracticeSession({ createQuestion: createModeQuestion, best: loadBest(BEST_KEY) });
+  let savedBest = session.best;
   let autoAdvanceTimer = null;
   let firstDraw = true;
   let promptedQuestion = null;
@@ -70,6 +74,10 @@ export function renderPractice(app) {
   function submitAnswer(value) {
     const result = session.answer(value);
     if (result === "ignored") return;
+    if (session.best > savedBest) {
+      savedBest = session.best;
+      saveBest(BEST_KEY, savedBest);
+    }
     draw();
     if (result === "correct") {
       autoAdvanceTimer = window.setTimeout(nextQuestion, AUTO_ADVANCE_MS);
@@ -132,10 +140,11 @@ export function renderPractice(app) {
                 panelId: "practice-panel",
                 containerAttrs: { "aria-label": "Chọn chế độ" }
               })}
-              <div class="quiz__stats" aria-label="Thống kê">
-                <span>Chuỗi đúng <strong>${session.streak}</strong></span>
-                <span>Đúng <strong>${session.correctCount}</strong>/${session.total}</span>
-              </div>
+              ${renderScoreboard([
+                { label: "Chuỗi", value: session.streak },
+                { label: "Đúng", value: `${padScore(session.correctCount, 2)}/${padScore(session.total, 2)}` },
+                { label: "Kỷ lục", value: session.best }
+              ])}
               <div id="practice-panel" class="quiz__prompt" role="tabpanel" aria-labelledby="tab-${escapeHtml(session.mode)}">
                 <div class="quiz__signal">${renderQuestionPrompt({ mode: session.mode, question: session.question })}</div>
                 ${mode.hasAudio ? renderButton({ label: "Nghe lại", className: "button--secondary button--small quiz__play", attrs: { "data-play": true } }) : ""}

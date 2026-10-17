@@ -1,6 +1,6 @@
 .app-shell {
   position: relative;
-  width: min(calc(100% - 32px), var(--content-width));
+  width: min(calc(100% - 40px), var(--content-width));
   margin: 0 auto;
 }
 
@@ -9,20 +9,23 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: 16px 0 8px;
+  padding: 20px 0 12px;
 }
 
 .main {
   min-height: calc(100vh - 120px);
-  padding: var(--space-3) 0 calc(var(--bottom-nav-space) + var(--space-5));
+  padding: var(--space-4) 0 calc(var(--bottom-nav-space) + var(--space-5));
 }
 
 html { scroll-padding-bottom: var(--bottom-nav-space); }
 
+/* The container is only focused programmatically after navigation. */
+.main:focus { outline: none; }
+
 .section__header {
   display: grid;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .section__header h1,
@@ -32,7 +35,7 @@ html { scroll-padding-bottom: var(--bottom-nav-space); }
 
 .grid {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-5) var(--space-4);
 }
 
 .grid--alphabet {
@@ -42,7 +45,7 @@ html { scroll-padding-bottom: var(--bottom-nav-space); }
 /* Quiz screens read best as one centred column, even on wide screens. */
 .practice-layout {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
@@ -62,7 +65,7 @@ html { scroll-padding-bottom: var(--bottom-nav-space); }
 
 .path-cards {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-5);
 }
 
 @media (min-width: 700px) {
@@ -72,7 +75,7 @@ html { scroll-padding-bottom: var(--bottom-nav-space); }
   }
 
   .topbar {
-    padding: 20px 0 12px;
+    padding: 24px 0 16px;
   }
 
   .main {
@@ -80,6 +83,6 @@ html { scroll-padding-bottom: var(--bottom-nav-space); }
   }
 
   .section__header {
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
   }
 }

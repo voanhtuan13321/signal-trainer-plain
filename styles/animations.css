@@ -1,3 +1,16 @@
+/* Sprite-style motion: everything steps instead of easing. */
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* steps(10) makes the cloud hop between frames like a sprite sheet. */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -10,48 +23,45 @@
   }
 }
 
+@keyframes card-flash {
+  0%, 40% { --edge: var(--warn); }
+  100% { --edge: var(--edge-soft); }
+}
+
+@keyframes skeleton-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
 .page-enter,
 .tab-panel {
-  animation: page-enter 180ms ease-out;
+  animation: page-enter 240ms steps(4);
 }
 
-.nav a,
-.button,
-.tab,
-.option,
-.chip,
-.path-card {
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease,
-    transform 100ms ease;
+.alphabet-card.is-flash {
+  animation: card-flash 1.2s steps(6) 1;
 }
 
-.button:active:not(:disabled),
-.option:active:not(:disabled),
-.tab:active,
-.path-card:active {
-  transform: scale(0.98);
+.cloud {
+  animation: float 4s steps(10) infinite;
+}
+
+.cursor {
+  animation: blink 1s steps(1) infinite;
+}
+
+.insert-coin {
+  animation: blink 1.2s steps(1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .page-enter,
   .tab-panel,
-  .alphabet-card.is-flash {
-    animation: none;
-  }
-
-  .nav a,
-  .button,
-  .tab,
-  .option,
-  .chip,
-  .path-card {
-    transition: none;
-  }
-
+  .alphabet-card.is-flash,
+  .cloud,
+  .cursor,
+  .insert-coin,
+  .restart-dialog .eyebrow::after,
   .skeleton-block::after {
     animation: none;
   }

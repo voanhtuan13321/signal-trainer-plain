@@ -20,9 +20,9 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/features/practice/`: pure practice session state (`practice-session`, `advanced-session`)
 - `src/features/signals/`: signal `modes` (Morse, Semaphore) and prompt audio shared by Learn and Practice
 - `src/data/`: domain data split into `app-meta.js`, `morse.js`, and `semaphore.js`
-- `src/services/`: browser services such as Morse Web Audio playback
+- `src/services/`: browser services: Morse Web Audio playback and safe `localStorage` for best scores
 - `src/lib/semaphore-svg.js`: vector Semaphore renderer
-- `tests/`: Node.js built-in tests for framework-independent logic
+- `tests/`: Node.js built-in tests for framework-independent logic (`npm test`); CI runs them on every push to `main` and every pull request
 - `src/data/app-meta.js`: current release version metadata
 - `CHANGELOG.md`: release history
 
@@ -32,6 +32,16 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - Components: `render*` functions return HTML strings. Plain-text params are escaped; markup params are named `*Html`; extra attributes are passed as `attrs` objects.
 - Files: components use PascalCase (`Button.js`); logic modules use kebab-case (`tabs-behavior.js`).
 
+## Design
+
+The UI is pixel art / 8-bit: square corners, outlines built from `box-shadow` (never `border`), a CRT scanline overlay, and stepped animations.
+
+- Fonts are self-hosted in `styles/fonts/` (SIL OFL, see `styles/fonts/LICENSE.md`), so the app works offline and sends nothing to third parties.
+- **Press Start 2P has no Vietnamese diacritics.** Text styled with `--font-head` must stay ASCII (letters, digits, short English labels). Vietnamese text uses VT323 (`--font-body`). `tests/font-safety.test.js` enforces this.
+- Colours and sizes are CSS variables at the top of `styles/base.css` (`--theme-bg`, `--theme-primary`, `--theme-accent`, `--px`).
+
+Best scores ("Kỷ lục") are stored per device in `localStorage` under `signal-trainer:best-practice` and `signal-trainer:best-advanced`. If storage is blocked the app keeps working and just forgets the score.
+
 ## Local Run
 
 GitHub Pages supports native ES modules, so the production site can stay build-free.
@@ -39,7 +49,7 @@ For local development, serve the folder over HTTP because browsers restrict ES m
 imports opened through `file://`.
 
 ```bash
-node scripts/dev-server.mjs
+npm start
 ```
 
 Then open [http://localhost:8000](http://localhost:8000).

@@ -31,7 +31,7 @@ export function createChoiceQuestion(config) {
   const optionCount = config.optionCount || 4;
 
   if (entries.length < optionCount) {
-    throw new Error("Không đủ dữ liệu để tạo quiz.");
+    throw new Error("Không đủ dữ liệu để tạo câu hỏi.");
   }
 
   const [key, prompt] = entries[Math.floor(Math.random() * entries.length)];

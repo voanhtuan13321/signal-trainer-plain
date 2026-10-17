@@ -4,9 +4,9 @@ import { DEFAULT_MODE } from "../signals/modes.js";
 /**
  * Regular (untimed) practice state, free of DOM and timers so it can be tested.
  *
- * @param {{ createQuestion: (mode: string) => object }} deps
+ * @param {{ createQuestion: (mode: string) => object, best?: number }} deps
  */
-export function createPracticeSession({ createQuestion }) {
+export function createPracticeSession({ createQuestion, best = 0 }) {
   const session = {
     mode: DEFAULT_MODE,
     question: createQuestion(DEFAULT_MODE),
@@ -14,7 +14,7 @@ export function createPracticeSession({ createQuestion }) {
     selected: null,
     correct: false,
     streak: 0,
-    best: 0,
+    best,
     total: 0,
     correctCount: 0,
 

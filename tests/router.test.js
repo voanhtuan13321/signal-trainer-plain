@@ -26,3 +26,59 @@ test("clearRouteClasses removes every route class and nothing else", () => {
   clearRouteClasses(element);
   assert.deepEqual([...classes], ["other"]);
 });
+
+/* ---- createRouter: titles and the error screen ---- */
+
+function stubBrowser(hash) {
+  const body = { classList: { add() {}, remove() {}, [Symbol.iterator]: () => [].values() } };
+  globalThis.window = { location: { hash }, localStorage: undefined, scrollTo() {} };
+  globalThis.document = { title: "", body, documentElement: {}, querySelectorAll: () => [] };
+}
+
+function stubApp({ failFirstWrite = false } = {}) {
+  let failed = !failFirstWrite;
+  return {
+    html: "",
+    focused: false,
+    focus() { this.focused = true; },
+    set innerHTML(value) {
+      if (!failed) { failed = true; throw new Error("boom"); }
+      this.html = value;
+    },
+    get innerHTML() { return this.html; }
+  };
+}
+
+test("router sets a per-route document title", async () => {
+  const { createRouter } = await import("../src/app/router.js");
+  try {
+    stubBrowser("#/");
+    createRouter(stubApp()).renderRoute();
+    assert.equal(document.title, "Signal Trainer");
+
+    stubBrowser("#/nope");
+    createRouter(stubApp()).renderRoute();
+    assert.equal(document.title, "Không tìm thấy trang · Signal Trainer");
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});
+
+test("router shows the error screen and error title when a page throws", async () => {
+  const { createRouter } = await import("../src/app/router.js");
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    stubBrowser("#/nope");
+    const app = stubApp({ failFirstWrite: true });
+    createRouter(app).renderRoute({ moveFocus: true });
+    assert.match(app.html, /Đã xảy ra lỗi/);
+    assert.equal(document.title, "Lỗi · Signal Trainer");
+    assert.equal(app.focused, true);
+  } finally {
+    console.error = originalError;
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});
