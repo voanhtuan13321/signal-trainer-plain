@@ -60,18 +60,22 @@ Then open [http://localhost:8000](http://localhost:8000).
 1. Update `src/data/app-meta.js` with the new version and release date
 2. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
 3. Run `npm test`
-4. Commit the release changes
-5. Create and push a git tag
-6. Create a GitHub Release using the changelog content
-7. Wait for GitHub Pages to finish deploying
+4. Commit the release changes and push `main`
+5. Create and push a git tag on that commit
+
+Pushing the tag runs `.github/workflows/deploy-pages.yml`, where each job waits for the previous one:
+
+`verify` (tag format, commit is on `main`, tag matches `APP_META.version`, changelog section exists) → `test` → `build` → `deploy` (GitHub Pages) → `release` (GitHub Release, notes taken from the matching `CHANGELOG.md` section).
+
+You can run the same checks locally with `node scripts/release-notes.mjs signal-trainer-plain-vX.Y.Z`.
 
 ## Suggested Release Commands
 
 ```bash
-git add .
+git add CHANGELOG.md src/data/app-meta.js
 git commit -m "release: vX.Y.Z"
-git tag signal-trainer-plain-vX.Y.Z
 git push origin main
+git tag -a signal-trainer-plain-vX.Y.Z -m "signal-trainer-plain vX.Y.Z"
 git push origin signal-trainer-plain-vX.Y.Z
 ```
 
@@ -85,11 +89,11 @@ This keeps the project name and version together so release tags stay unambiguou
 
 ## Release Notes Format
 
-Use this short structure:
+`CHANGELOG.md` is written in Vietnamese and uses this structure per version:
 
-- `Added`: new features or screens
-- `Changed`: UI or behavior updates
-- `Fixed`: bug fixes and regressions
+- `Thêm` (Added): new features or screens
+- `Thay đổi` (Changed): UI or behavior updates
+- `Sửa lỗi` (Fixed): bug fixes and regressions
 
 ## Release Checklist
 
