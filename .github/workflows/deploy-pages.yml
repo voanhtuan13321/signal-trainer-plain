@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: "⚙️ Setup Node"
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: "⚙️ Setup GitHub Pages"
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: "📦 Stage Site Files"
         # Publish only what the browser needs, not tests, scripts or docs.
@@ -53,7 +53,7 @@ jobs:
           cp -r index.html favicon.svg CHANGELOG.md src styles _site/
 
       - name: "🗂️ Upload Pages Artifact"
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
