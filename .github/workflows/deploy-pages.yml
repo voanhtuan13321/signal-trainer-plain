@@ -1,11 +1,12 @@
-name: "🚀 Deploy Pages on Tag"
+name: "🚀 Deploy Pages & Release on Tag"
 
 on:
   # Only publish when a project-version tag is pushed.
   push:
     tags:
       - "signal-trainer-plain-v*"
-  # Allow manual redeploy from the Actions tab when needed.
+  # Allow manual redeploy from the Actions tab when needed. Pick a tag as the
+  # "Use workflow from" ref to redeploy that version and refresh its release.
   workflow_dispatch:
 
 permissions:
@@ -15,12 +16,47 @@ permissions:
   id-token: write
 
 concurrency:
-  # Prevent overlapping Pages deploys for the same site.
+  # Prevent overlapping releases for the same site. Never cancel a run that is
+  # already going: stopping between deploy and release would leave a deployed
+  # version without its GitHub Release.
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
+# Each job waits for the previous one to succeed:
+# verify -> test -> build -> deploy -> release
 jobs:
+  verify:
+    name: "🔎 Verify Release Tag"
+    runs-on: ubuntu-latest
+    # The checks below only run for tags; a manual run from a branch just
+    # redeploys the site and skips them.
+    steps:
+      - name: "📥 Checkout Source"
+        uses: actions/checkout@v6
+        with:
+          # Full history so we can tell whether the tagged commit is on main.
+          fetch-depth: 0
+
+      - name: "🌿 Check Tagged Commit Is On main"
+        if: github.ref_type == 'tag'
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $GITHUB_REF_NAME points to a commit that is not on main"
+            exit 1
+          fi
+
+      - name: "⚙️ Setup Node"
+        if: github.ref_type == 'tag'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: "🔎 Check Tag, App Version And Changelog"
+        if: github.ref_type == 'tag'
+        run: node scripts/release-notes.mjs "$GITHUB_REF_NAME"
+
   test:
+    needs: verify
     name: "🧪 Run Tests"
     runs-on: ubuntu-latest
     steps:
@@ -58,9 +94,9 @@ jobs:
           path: _site
 
   deploy:
+    needs: build
     name: "🌍 Deploy to GitHub Pages"
     runs-on: ubuntu-latest
-    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -68,3 +104,37 @@ jobs:
       - name: "🚢 Publish Site"
         id: deployment
         uses: actions/deploy-pages@v5
+
+  release:
+    needs: deploy
+    name: "📦 Create GitHub Release"
+    # Only for version tags; a manual run from a branch just redeploys the site.
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      # Creating a release needs write access to repository contents.
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: "📥 Checkout Tag"
+        uses: actions/checkout@v6
+
+      - name: "⚙️ Setup Node"
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: "📝 Extract Release Notes From CHANGELOG"
+        run: node scripts/release-notes.mjs "$TAG" release-notes.md
+
+      - name: "🚀 Create or Update GitHub Release"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="v${TAG#signal-trainer-plain-v}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$title" --notes-file release-notes.md
+          else
+            gh release create "$TAG" --verify-tag --title "$title" --notes-file release-notes.md
+          fi

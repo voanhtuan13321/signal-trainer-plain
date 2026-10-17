@@ -6,6 +6,13 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-10-17
+
+### Thay đổi
+- Gộp workflow tạo GitHub Release vào workflow deploy: chạy lần lượt verify → test → build → deploy → release, release chỉ được tạo khi site đã deploy thành công.
+- Bước `verify` chạy trước tiên: chặn tag sai định dạng, tag không nằm trên `main`, tag lệch `APP_META.version` hoặc thiếu mục changelog, để không deploy nhầm; logic kiểm tra nằm trong `scripts/release-notes.mjs` và có test.
+- Cập nhật README và checklist phát hành theo quy trình tự động; bỏ `.github/release.yml` (cấu hình ghi chú tự sinh không còn dùng).
+
 ## [1.2.1] - 2026-10-17
 
 ### Thêm
