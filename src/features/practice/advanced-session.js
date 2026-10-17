@@ -54,6 +54,7 @@ export function createAdvancedSession({ createQuestion, now = () => performance.
     setMode(mode) {
       session.mode = mode;
       if (session.started && !session.ended) {
+        session.best = Math.max(session.best, session.correct);
         session.correct = 0;
         session.nextQuestion();
       }

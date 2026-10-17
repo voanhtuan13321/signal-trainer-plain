@@ -110,14 +110,14 @@ export function renderPractice(app) {
     return `
       <div class="quiz__footer" ${outcome ? "" : "hidden"}>
         <div class="feedback ${outcome ? `feedback--${outcome.correct ? "success" : "danger"}` : ""}" ${outcome ? "" : "hidden"}>${outcome ? escapeHtml(describeOutcome(outcome)) : ""}</div>
-        ${renderButton({ label: "Câu tiếp theo", className: "button--secondary button--small", attrs: { "data-next": true, hidden: !session.showNext } })}
+        ${renderButton({ label: "Câu tiếp theo", attrs: { "data-next": true, hidden: !session.showNext } })}
       </div>`;
   }
 
   function draw() {
     const mode = getSignalMode(session.mode);
     const options = session.question.options
-      .map((option) => renderQuizOption({ value: option, disabled: session.answered, result: session.resultFor(option) }))
+      .map((option, index) => renderQuizOption({ value: option, disabled: session.answered, result: session.resultFor(option), hint: String(index + 1) }))
       .join("");
 
     app.innerHTML = `
@@ -125,24 +125,28 @@ export function renderPractice(app) {
         <div class="${firstDraw ? "page-enter" : ""}">
           <div class="practice-layout">
             <article class="card quiz">
-              <div class="quiz__controls">
-                ${renderTabs({
-                  items: SIGNAL_MODES,
-                  activeValue: session.mode,
-                  attribute: "data-practice-mode",
-                  className: "tabs--compact",
-                  panelId: "practice-panel",
-                  containerAttrs: { "aria-label": "Chọn chế độ" }
-                })}
-                <a class="button button--ghost button--small practice__advanced-link" href="#/advanced-practice">Luyện tập nâng cao</a>
+              ${renderTabs({
+                items: SIGNAL_MODES,
+                activeValue: session.mode,
+                attribute: "data-practice-mode",
+                panelId: "practice-panel",
+                containerAttrs: { "aria-label": "Chọn chế độ" }
+              })}
+              <div class="quiz__stats" aria-label="Thống kê">
+                <span>Chuỗi đúng <strong>${session.streak}</strong></span>
+                <span>Đúng <strong>${session.correctCount}</strong>/${session.total}</span>
               </div>
               <div id="practice-panel" class="quiz__prompt" role="tabpanel" aria-labelledby="tab-${escapeHtml(session.mode)}">
                 <div class="quiz__signal">${renderQuestionPrompt({ mode: session.mode, question: session.question })}</div>
-                ${mode.hasAudio ? renderButton({ label: "Nghe", className: "button--ghost button--small quiz__play", attrs: { "data-play": true } }) : ""}
+                ${mode.hasAudio ? renderButton({ label: "Nghe lại", className: "button--secondary button--small quiz__play", attrs: { "data-play": true } }) : ""}
               </div>
               <div class="quiz__options">${options}</div>
               ${renderFooter()}
             </article>
+            <a class="path-card path-card--inline" href="#/advanced-practice">
+              <strong>Thử thách tốc độ</strong>
+              <span>Thời gian giảm dần sau mỗi câu đúng</span>
+            </a>
           </div>
         </div>
       </section>

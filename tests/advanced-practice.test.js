@@ -77,3 +77,13 @@ test("switching mode mid-run resets the streak, but not before starting", () => 
   assert.equal(session.correct, 0);
   assert.equal(session.question.mode, "morse");
 });
+
+test("switching mode mid-run keeps the best streak", () => {
+  const { session } = makeSession();
+  session.start();
+  session.answer("A");
+  session.answer("A");
+  session.setMode("semaphore");
+  session.answer("B");
+  assert.equal(session.best, 2);
+});

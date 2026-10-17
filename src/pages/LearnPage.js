@@ -36,16 +36,16 @@ function renderMorseGrid() {
         character,
         contentHtml: `<div class="morse-code">${code}</div>`,
         actionsHtml: renderButton({
-          label: "▶ Play",
-          className: "button--ghost button--small",
-          attrs: { "data-play-morse": code }
+          label: "▶",
+          className: "button--icon",
+          attrs: { "data-play-morse": code, "aria-label": `Nghe chữ ${character}` }
         })
       });
     })
     .join("");
 
   return `
-    <div class="callout">Timing: dot = 1 unit, dash = 3 units.</div>
+    <div class="callout">Chấm = 1 đơn vị, vạch = 3 đơn vị. Bấm ▶ để nghe.</div>
     <div class="grid grid--alphabet section tab-panel">${cards}</div>
   `.trim();
 }
@@ -64,6 +64,14 @@ function renderSemaphoreGrid() {
     .join("");
 
   return `<div class="grid grid--alphabet section tab-panel">${cards}</div>`;
+}
+
+/** Horizontal strip of characters that scrolls the grid to a card. */
+function renderJumpBar(modeValue) {
+  const chips = Object.keys(getSignalMode(modeValue).referenceData)
+    .map((character) => `<button class="chip" type="button" data-jump="${character}">${character}</button>`)
+    .join("");
+  return `<nav class="jump-bar" aria-label="Nhảy tới ký tự">${chips}</nav>`;
 }
 
 /** Reference grid per mode value; keep in step with SIGNAL_MODES. */
@@ -96,6 +104,7 @@ export function renderLearn(app) {
               containerAttrs: { "aria-label": "Chọn loại tín hiệu" }
             })}
           </div>
+          ${renderJumpBar(activeTab)}
           <p class="feedback feedback--danger" data-audio-error role="alert" hidden></p>
           <div id="learn-panel" role="tabpanel" aria-labelledby="tab-${activeTab}">
             ${GRID_RENDERERS[activeTab]()}
@@ -119,7 +128,23 @@ export function renderLearn(app) {
     }
   }
 
+  function jumpTo(character) {
+    const card = document.getElementById(`signal-${character}`);
+    if (!card) return;
+    // Instant jump: smooth scrolling over 2000px+ is slow and motion-heavy.
+    card.scrollIntoView({ behavior: "auto", block: "center" });
+    card.classList.remove("is-flash");
+    void card.offsetWidth;
+    card.classList.add("is-flash");
+  }
+
   function onClick(event) {
+    const chip = event.target.closest("[data-jump]");
+    if (chip) {
+      jumpTo(chip.dataset.jump);
+      return;
+    }
+
     const tab = event.target.closest("[data-tab]");
     if (tab) {
       activeTab = tab.dataset.tab;

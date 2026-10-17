@@ -1,27 +1,24 @@
 :root {
-  --bg: #eef2ff;
-  --bg-accent: rgba(108, 106, 255, 0.2);
-  --bg-accent-2: rgba(44, 214, 191, 0.12);
-  --bg-accent-3: rgba(255, 91, 194, 0.12);
-  --surface: rgba(255, 255, 255, 0.82);
-  --surface-strong: rgba(255, 255, 255, 0.94);
-  --surface-soft: rgba(255, 255, 255, 0.88);
-  --text: #161c48;
-  --muted: rgba(22, 28, 72, 0.72);
-  --border: rgba(255, 255, 255, 0.62);
-  --border-strong: rgba(142, 90, 255, 0.22);
-  --highlight: rgba(255, 255, 255, 0.92);
-  --primary: #4e8bff;
-  --primary-strong: #8b48ff;
-  --primary-glow: rgba(116, 87, 255, 0.2);
-  --secondary-glow: rgba(255, 91, 194, 0.14);
-  --success: #0da96b;
-  --danger: #df4f72;
-  --shadow: 0 24px 50px rgba(97, 86, 160, 0.14);
-  --shadow-hover: 0 30px 80px rgba(97, 86, 160, 0.22);
-  --inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-  --radius-sm: 14px;
-  --radius-md: 24px;
+  /* Flat, high-contrast light theme. Text/background pairs meet WCAG AA. */
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-muted: #eef2fa;
+  --text: #14213d;
+  --muted: #55627a;
+  --border: #d5dcec;
+  --border-strong: #aab6d3;
+  --primary: #2563eb;
+  --primary-strong: #1d4ed8;
+  --primary-soft: #e3ecff;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --shadow: 0 1px 2px rgba(20, 33, 61, 0.06), 0 4px 14px rgba(20, 33, 61, 0.06);
+  --shadow-hover: 0 2px 4px rgba(20, 33, 61, 0.08), 0 8px 22px rgba(20, 33, 61, 0.1);
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
@@ -29,10 +26,12 @@
   --space-6: 32px;
   --space-7: 48px;
   --content-width: 480px;
-  --bottom-nav-space: 112px;
+  --bottom-nav-space: 88px;
   font-family:
-    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
     "Segoe UI",
+    Roboto,
     sans-serif;
   color-scheme: light;
 }
@@ -46,47 +45,12 @@ html {
   background: var(--bg);
 }
 
-html,
-body {
-  min-height: 100%;
-}
-
 body {
   min-height: 100vh;
   margin: 0;
   color: var(--text);
-  background:
-    radial-gradient(circle at 20% 0%, var(--bg-accent), transparent 26rem),
-    radial-gradient(circle at 100% 18%, var(--bg-accent-3), transparent 24rem),
-    radial-gradient(circle at 0% 100%, var(--bg-accent-2), transparent 24rem),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
-    var(--bg);
-}
-
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  inset: auto;
-  width: 10rem;
-  height: 10rem;
-  border-radius: 50%;
-  filter: blur(28px);
-  opacity: 0.48;
-  pointer-events: none;
-  z-index: 0;
-}
-
-body::before {
-  top: 5rem;
-  right: -4rem;
-  background: radial-gradient(circle, var(--secondary-glow), transparent 70%);
-}
-
-body::after {
-  bottom: 8rem;
-  left: -4rem;
-  background: radial-gradient(circle, var(--primary-glow), transparent 68%);
+  background: var(--bg);
+  line-height: 1.5;
 }
 
 button,
@@ -100,8 +64,8 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid var(--primary-strong);
-  outline-offset: 3px;
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .skip-link {
@@ -132,15 +96,15 @@ p {
 
 h1 {
   margin-bottom: var(--space-3);
-  max-width: 15ch;
-  font-size: clamp(2.35rem, 7.3vw, 4.15rem);
-  line-height: 0.92;
-  letter-spacing: -0.07em;
+  font-size: clamp(1.6rem, 5.5vw, 2.3rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 h2 {
   margin-bottom: var(--space-3);
-  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  line-height: 1.25;
 }
 
 h3 {
@@ -148,9 +112,9 @@ h3 {
 }
 
 p {
+  max-width: 36rem;
   color: var(--muted);
   line-height: 1.55;
-  max-width: 30rem;
 }
 
 .visually-hidden {
@@ -164,4 +128,9 @@ p {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* Component rules like display: grid/flex would otherwise override [hidden]. */
+[hidden] {
+  display: none !important;
 }

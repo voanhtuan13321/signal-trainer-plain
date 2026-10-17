@@ -7,6 +7,9 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 ## [Unreleased]
 
 ### Sửa lỗi
+- Nút "Câu tiếp theo" và footer không còn hiện trước khi trả lời.
+- Màn thử thách tốc độ vừa một màn hình, không phải cuộn khi đang tính giờ; kỷ lục được giữ khi đổi chế độ.
+- Changelog hiển thị đoạn mã trong dấu backtick thay vì in nguyên dấu.
 - Luyện tập nâng cao: phím Esc không còn làm mất nút Bắt đầu / Bắt đầu lại; tab không còn trùng ID và điều hướng mũi tên chỉ di chuyển trong đúng bộ tab.
 - Router xóa toàn bộ class `route-*` cũ và dùng `route-not-found` cho đường dẫn không tồn tại.
 - Trang Luyện tập không còn chừa cột trống trên màn hình rộng.
@@ -14,6 +17,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong tài li
 - Parser changelog không gộp mục của heading không hợp lệ vào phiên bản trước.
 
 ### Thay đổi
+- Thiết kế lại giao diện: nền đặc, tương phản cao, nút chính màu đặc, thanh điều hướng có biểu tượng một dòng.
+- Màn luyện tập: tín hiệu Morse vẽ bằng chấm và vạch, đáp án lớn có gợi ý phím 1–4, thêm chuỗi đúng và số câu đúng, đúng/sai tô xanh/đỏ rõ.
+- Trang Học: nút nghe gọn trên từng thẻ và thanh nhảy nhanh tới ký tự.
+- Trang chủ gọn lại thành ba lối vào: Luyện tập, Bảng tín hiệu, Thử thách tốc độ.
 - Tách logic phiên luyện tập nâng cao ra `features/practice/` và viết lại trang cho dễ đọc.
 - Báo lỗi phát âm thanh ngay trên trang thay cho `window.alert`.
 - Workflow deploy chạy `npm test` và chỉ đăng các file cần thiết lên Pages.

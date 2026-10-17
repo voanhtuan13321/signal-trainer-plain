@@ -42,7 +42,10 @@ export function createRouter(app) {
     cleanup = render() || null;
 
     document.querySelectorAll("[data-nav]").forEach((link) => {
-      link.classList.toggle("is-active", link.getAttribute("data-nav") === path);
+      const active = link.getAttribute("data-nav") === path;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
     });
 
     // Mobile Safari may keep the scroll offset on both scrolling roots. Reset

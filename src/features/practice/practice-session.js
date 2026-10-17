@@ -13,6 +13,10 @@ export function createPracticeSession({ createQuestion }) {
     answered: false,
     selected: null,
     correct: false,
+    streak: 0,
+    best: 0,
+    total: 0,
+    correctCount: 0,
 
     /** Result of the answered question, or null while it is still open. */
     get outcome() {
@@ -52,6 +56,14 @@ export function createPracticeSession({ createQuestion }) {
       session.answered = true;
       session.selected = value;
       session.correct = isCorrectAnswer(session.question, value);
+      session.total += 1;
+      if (session.correct) {
+        session.correctCount += 1;
+        session.streak += 1;
+        session.best = Math.max(session.best, session.streak);
+      } else {
+        session.streak = 0;
+      }
       return session.correct ? "correct" : "wrong";
     }
   };

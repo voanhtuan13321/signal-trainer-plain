@@ -12,7 +12,7 @@ import { cancelMorseAudio } from "../services/morseAudio.js";
 
 /** Start dialog before the first run, result dialog after a run ends. */
 function renderDialog(session) {
-  const backLink = '<a class="button button--ghost button--small" href="#/practice">Về luyện tập thường</a>';
+  const backLink = '<a class="button button--secondary" href="#/practice">Về luyện tập thường</a>';
 
   if (session.ended) {
     return `
@@ -20,7 +20,7 @@ function renderDialog(session) {
       <h2>${escapeHtml(session.reason)}</h2>
       <p>Bạn trả lời đúng <strong>${session.correct}</strong> câu liên tiếp.</p>
       <p>Kỷ lục trong lượt này: <strong>${session.best}</strong> câu.</p>
-      ${renderButton({ label: "Bắt đầu lại", className: "button--secondary", attrs: { "data-restart": true } })}
+      ${renderButton({ label: "Bắt đầu lại", attrs: { "data-restart": true } })}
       ${backLink}`;
   }
 
@@ -36,7 +36,7 @@ function renderDialog(session) {
       idPrefix: "start-tab",
       containerAttrs: { "aria-label": "Chọn loại tín hiệu" }
     })}
-    ${renderButton({ label: "Bắt đầu", className: "button--secondary", attrs: { "data-start": true } })}
+    ${renderButton({ label: "Bắt đầu", attrs: { "data-start": true } })}
     ${backLink}`;
 }
 
@@ -141,10 +141,10 @@ export function renderAdvancedPractice(app) {
     stopAutoPlay();
 
     const playing = !session.needsDialog;
-    const options = playing ? session.question.options.map((value) => renderQuizOption({ value })).join("") : "";
+    const options = playing ? session.question.options.map((value, index) => renderQuizOption({ value, hint: String(index + 1) })).join("") : "";
 
     app.innerHTML = `
-      <section>
+      <section class="advanced-page ${playing ? "is-playing" : ""}">
         <div class="${firstDraw ? "page-enter" : ""}">
           <div class="section__header">
             <div>
@@ -155,7 +155,7 @@ export function renderAdvancedPractice(app) {
           </div>
           <article class="card advanced-quiz">
             <div class="advanced-quiz__meta">
-              <span>Streak <strong>${session.correct}</strong></span>
+              <span>Chuỗi đúng <strong>${session.correct}</strong></span>
               <span>Giới hạn <strong>${(session.limit / 1000).toFixed(2)}s</strong></span>
             </div>
             ${playing ? renderTabs({

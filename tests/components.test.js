@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { renderReleaseCard } from "../src/components/updates/ReleaseCard.js";
 import { renderButton } from "../src/components/common/Button.js";
 import { renderTabs } from "../src/components/common/Tabs.js";
 import { renderVersionBadge } from "../src/components/updates/VersionBadge.js";
@@ -81,7 +82,9 @@ test("renderVersionBadge escapes release fields", () => {
 
 test("renderQuestionPrompt follows the mode kind", async () => {
   const { renderQuestionPrompt } = await import("../src/components/practice/QuestionPrompt.js");
-  assert.equal(renderQuestionPrompt({ mode: "morse", question: { prompt: ".-", key: "A" } }), ".-");
+  const morse = renderQuestionPrompt({ mode: "morse", question: { prompt: ".-", key: "A" } });
+  assert.match(morse, /aria-label="\.-"/);
+  assert.match(morse, /morse-dot[\s\S]*morse-dash/);
   assert.match(renderQuestionPrompt({ mode: "semaphore", question: { prompt: "x", key: "A" } }), /<svg/);
 });
 
@@ -90,4 +93,10 @@ test("every signal mode has a Learn grid renderer", async () => {
   const learn = await readFile(new URL("../src/pages/LearnPage.js", import.meta.url), "utf8");
   const { SIGNAL_MODES } = await import("../src/features/signals/modes.js");
   for (const mode of SIGNAL_MODES) assert.match(learn, new RegExp(`${mode.value}: render`));
+});
+
+test("release card renders inline code spans safely", () => {
+  const html = renderReleaseCard({ version: "1.0.0", date: "2026-01-01", changes: { added: ["Dùng `<b>` thay đổi"] } });
+  assert.match(html, /<code>&lt;b&gt;<\/code>/);
+  assert.doesNotMatch(html, /`/);
 });
