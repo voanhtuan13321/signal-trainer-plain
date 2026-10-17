@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { renderReleaseCard } from "../src/components/updates/ReleaseCard.js";
 import { renderButton } from "../src/components/common/Button.js";
 import { renderTabs } from "../src/components/common/Tabs.js";
+import { renderVersionBadge } from "../src/components/updates/VersionBadge.js";
 import { renderSignalCard } from "../src/components/learn/SignalCard.js";
 import { renderQuizOption } from "../src/components/practice/QuizOption.js";
 import { renderSemaphoreImage } from "../src/components/common/SemaphoreImage.js";
@@ -28,7 +30,7 @@ test("shared renderers escape interpolated text", () => {
 });
 
 test("renderSignalCard composes a signal card", () => {
-  const html = renderSignalCard({ character: "A", content: " .- ", actions: "Play" });
+  const html = renderSignalCard({ character: "A", contentHtml: " .- ", actionsHtml: "Play" });
   assert.match(html, /alphabet-card__letter">A/);
   assert.match(html, /Play/);
 });
@@ -51,4 +53,70 @@ test("semaphore SVG provides a complete pose for every letter", () => {
 
 test("SemaphoreImage resolves its data and SVG dependencies from common", () => {
   assert.match(renderSemaphoreImage("A"), /<svg/);
+});
+
+test("renderTabs uses idPrefix so two tablists never share ids", () => {
+  const items = [{ value: "morse", label: "Morse" }];
+  assert.match(renderTabs({ items, activeValue: "morse" }), /id="tab-morse"/);
+  assert.match(renderTabs({ items, activeValue: "morse", idPrefix: "start-tab" }), /id="start-tab-morse"/);
+});
+
+test("renderButton and renderTabs render attribute objects with escaping", () => {
+  const button = renderButton({ label: "Go", attrs: { "data-start": true, hidden: false, title: '"x"' } });
+  assert.match(button, /data-start(?!=)/);
+  assert.doesNotMatch(button, /hidden/);
+  assert.match(button, /title="&quot;x&quot;"/);
+  assert.match(renderTabs({ items: [{ value: "a", label: "A" }], activeValue: "a", containerAttrs: { "aria-label": "Chọn" } }), /aria-label="Chọn"/);
+});
+
+test("renderSignalCard escapes the character but keeps trusted markup", () => {
+  const html = renderSignalCard({ character: "<b>", contentHtml: "<i>ok</i>" });
+  assert.match(html, /&lt;b&gt;/);
+  assert.match(html, /<i>ok<\/i>/);
+});
+
+test("renderVersionBadge escapes release fields", () => {
+  const html = renderVersionBadge({ version: "<1>", date: "<d>" });
+  assert.doesNotMatch(html, /<1>|<d>/);
+});
+
+test("renderQuestionPrompt follows the mode kind", async () => {
+  const { renderQuestionPrompt } = await import("../src/components/practice/QuestionPrompt.js");
+  const morse = renderQuestionPrompt({ mode: "morse", question: { prompt: ".-", key: "A" } });
+  assert.match(morse, /aria-label="chấm vạch"/);
+  assert.match(morse, /data-code="\.-"/);
+  assert.match(morse, /morse-dot[\s\S]*morse-dash/);
+  assert.match(renderQuestionPrompt({ mode: "semaphore", question: { prompt: "x", key: "A" } }), /<svg/);
+});
+
+test("every signal mode has a Learn grid renderer", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const learn = await readFile(new URL("../src/pages/LearnPage.js", import.meta.url), "utf8");
+  const { SIGNAL_MODES } = await import("../src/features/signals/modes.js");
+  for (const mode of SIGNAL_MODES) assert.match(learn, new RegExp(`${mode.value}: render`));
+});
+
+test("release card renders inline code spans safely", () => {
+  const html = renderReleaseCard({ version: "1.0.0", date: "2026-01-01", changes: { added: ["Dùng `<b>` thay đổi"] } });
+  assert.match(html, /<code>&lt;b&gt;<\/code>/);
+  assert.doesNotMatch(html, /`/);
+});
+
+test("renderScoreboard pads numbers, keeps strings and escapes text", async () => {
+  const { renderScoreboard, padScore } = await import("../src/components/practice/Scoreboard.js");
+  assert.equal(padScore(7), "007");
+  assert.equal(padScore(7, 2), "07");
+  const html = renderScoreboard([{ label: "<b>", value: 5 }, { label: "Giới hạn", value: "4.00s" }]);
+  assert.match(html, /<dd>005<\/dd>/);
+  assert.match(html, /<dd>4\.00s<\/dd>/);
+  assert.match(html, /&lt;b&gt;/);
+});
+
+test("home keeps the learning order and highlights learn for new users, practice for returning ones", async () => {
+  const { getDestinations } = await import("../src/pages/HomePage.js");
+  const fresh = getDestinations({ hasPracticed: false });
+  assert.deepEqual(fresh.map((d) => d.id), ["learn", "practice", "advanced"]);
+  assert.deepEqual(fresh.map((d) => d.tag), ["LV.01", "LV.02", "BOSS"]);
+  assert.deepEqual(fresh.filter((d) => d.primary).map((d) => d.id), ["learn"]);
+  assert.deepEqual(getDestinations({ hasPracticed: true }).filter((d) => d.primary).map((d) => d.id), ["practice"]);
 });

@@ -9,13 +9,18 @@ const CHANGE_LABELS = {
   security: "Bảo mật"
 };
 
+/** Escape changelog text, then turn `code` spans into <code> elements. */
+export function renderChangeText(text) {
+  return escapeHtml(text).replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
 export function renderReleaseCard(release) {
   const groups = Object.entries(release.changes)
     .filter(([, items]) => items.length > 0)
     .map(([key, items]) => `
       <section class="release-group">
         <h3>${escapeHtml(CHANGE_LABELS[key] || key)}</h3>
-        <ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        <ul>${items.map((item) => `<li>${renderChangeText(item)}</li>`).join("")}</ul>
       </section>
     `.trim())
     .join("");

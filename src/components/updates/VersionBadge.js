@@ -1,3 +1,6 @@
+import { escapeHtml } from "../../lib/escape-html.js";
+
 export function renderVersionBadge(release) {
-  return `<a class="release-chip" href="#/updates" aria-label="Xem cập nhật phiên bản ${release.version}">v${release.version} · ${release.date} · Cập nhật</a>`;
+  const version = escapeHtml(release.version);
+  return `<a class="release-chip" href="#/updates" aria-label="Xem cập nhật phiên bản ${version}">v${version} · ${escapeHtml(release.date)} · Cập nhật</a>`;
 }

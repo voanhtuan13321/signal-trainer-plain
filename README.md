@@ -16,13 +16,31 @@ Signal Trainer is a small mobile-first static web app for learning Morse and Sem
 - `src/pages/UpdatesPage.js`: version changelog screen at `#/updates`
 - `src/pages/AdvancedPracticePage.js`: timed high-speed practice, opened from the regular Practice page
 - `src/components/`: UI grouped into `common`, `learn`, `practice`, and `updates`
-- `src/lib/`: framework-independent quiz logic
+- `src/lib/`: framework-independent helpers (quiz, changelog, escaping, HTML attributes, keyboard, SVG)
+- `src/features/practice/`: pure practice session state (`practice-session`, `advanced-session`)
+- `src/features/signals/`: signal `modes` (Morse, Semaphore) and prompt audio shared by Learn and Practice
 - `src/data/`: domain data split into `app-meta.js`, `morse.js`, and `semaphore.js`
-- `src/services/`: browser services such as Morse Web Audio playback
+- `src/services/`: browser services: Morse Web Audio playback and safe `localStorage` for best scores
 - `src/lib/semaphore-svg.js`: vector Semaphore renderer
-- `tests/`: Node.js built-in tests for framework-independent logic
+- `tests/`: Node.js built-in tests for framework-independent logic (`npm test`); CI runs them on every push to `main` and every pull request
 - `src/data/app-meta.js`: current release version metadata
 - `CHANGELOG.md`: release history
+
+## Code Conventions
+
+- Pages: `render*(app)` draws into `app` and returns an optional cleanup function; the router calls it before the next route. Pages bind listeners once on `app` (event delegation) and redraw from state.
+- Components: `render*` functions return HTML strings. Plain-text params are escaped; markup params are named `*Html`; extra attributes are passed as `attrs` objects.
+- Files: components use PascalCase (`Button.js`); logic modules use kebab-case (`tabs-behavior.js`).
+
+## Design
+
+The UI is pixel art / 8-bit: square corners, outlines built from `box-shadow` (never `border`), a CRT scanline overlay, and stepped animations.
+
+- Fonts are self-hosted in `styles/fonts/` (SIL OFL, see `styles/fonts/LICENSE.md`), so the app works offline and sends nothing to third parties.
+- **Press Start 2P has no Vietnamese diacritics.** Text styled with `--font-head` must stay ASCII (letters, digits, short English labels). Vietnamese text uses VT323 (`--font-body`). `tests/font-safety.test.js` enforces this.
+- Colours and sizes are CSS variables at the top of `styles/base.css` (`--theme-bg`, `--theme-primary`, `--theme-accent`, `--px`).
+
+Best scores ("Kỷ lục") are stored per device in `localStorage` under `signal-trainer:best-practice` and `signal-trainer:best-advanced`. If storage is blocked the app keeps working and just forgets the score.
 
 ## Local Run
 
@@ -31,7 +49,7 @@ For local development, serve the folder over HTTP because browsers restrict ES m
 imports opened through `file://`.
 
 ```bash
-node scripts/dev-server.mjs
+npm start
 ```
 
 Then open [http://localhost:8000](http://localhost:8000).
@@ -41,6 +59,7 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 1. Update `src/data/app-meta.js` with the new version and release date
 2. Move release notes from `Unreleased` into a new version section in `CHANGELOG.md`
+3. Run `npm test`
 4. Commit the release changes
 5. Create and push a git tag
 6. Create a GitHub Release using the changelog content
@@ -50,17 +69,17 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ```bash
 git add .
-git commit -m "release: v0.1.0"
-git tag signal-trainer-plain-v0.1.0
+git commit -m "release: vX.Y.Z"
+git tag signal-trainer-plain-vX.Y.Z
 git push origin main
-git push origin signal-trainer-plain-v0.1.0
+git push origin signal-trainer-plain-vX.Y.Z
 ```
 
 ## Tag Format
 
 Use this release tag format:
 
-- `signal-trainer-plain-v0.1.0`
+- `signal-trainer-plain-vX.Y.Z` (for example `signal-trainer-plain-v1.1.0`)
 
 This keeps the project name and version together so release tags stay unambiguous.
 

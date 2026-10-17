@@ -1,4 +1,8 @@
-/** Canonical Morse lookup used by the reference grid and quiz generator. */
+/**
+ * Canonical Morse lookup used by the reference grid and quiz generator.
+ * Digit keys are integer-like, so JS always lists them before letters; use
+ * MORSE_ORDER when letters should come first.
+ */
 export const MORSE_CODE = {
   A: ".-",
   B: "-...",
@@ -42,3 +46,9 @@ export const MORSE_CODE = {
 export const MORSE_LETTERS = Object.fromEntries(
   Object.entries(MORSE_CODE).filter(([character]) => /^[A-Z]$/.test(character))
 );
+
+/** Display order for the reference: letters first, then digits. */
+export const MORSE_ORDER = [
+  ...Object.keys(MORSE_CODE).filter((character) => /^[A-Z]$/.test(character)),
+  ...Object.keys(MORSE_CODE).filter((character) => /^[0-9]$/.test(character))
+];

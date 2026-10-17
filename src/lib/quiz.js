@@ -20,38 +20,28 @@ export function shuffle(items) {
 }
 
 /**
- * Build a multiple-choice question from a lookup table.
+ * Build a multiple-choice question from a lookup table. The prompt is the
+ * entry's value (a signal) and the answer is its key (the character).
  *
- * `value-to-key` asks users to identify a character from a signal. `key-to-value`
- * reverses that direction and is useful for showing a character prompt.
- *
- * @param {{ data: Record<string, unknown>, optionCount?: number, direction?: "value-to-key" | "key-to-value" }} config
- * @returns {{ key: string, prompt: unknown, answer: unknown, options: unknown[] }}
+ * @param {{ data: Record<string, unknown>, optionCount?: number }} config
+ * @returns {{ key: string, prompt: unknown, answer: string, options: string[] }}
  */
 export function createChoiceQuestion(config) {
   const entries = Object.entries(config.data);
   const optionCount = config.optionCount || 4;
-  const direction = config.direction || "value-to-key";
 
   if (entries.length < optionCount) {
-    throw new Error("Không đủ dữ liệu để tạo quiz.");
+    throw new Error("Không đủ dữ liệu để tạo câu hỏi.");
   }
 
-  const correctIndex = Math.floor(Math.random() * entries.length);
-  const correctEntry = entries[correctIndex];
-  const [key, value] = correctEntry;
-  const isKeyToValue = direction === "key-to-value";
-  const answer = isKeyToValue ? value : key;
-  const prompt = isKeyToValue ? key : value;
-  const distractors = entries
-    .filter((entry) => entry[0] !== key)
-    .map((entry) => (isKeyToValue ? entry[1] : entry[0]));
+  const [key, prompt] = entries[Math.floor(Math.random() * entries.length)];
+  const distractors = entries.filter((entry) => entry[0] !== key).map((entry) => entry[0]);
 
   return {
     key,
     prompt,
-    answer,
-    options: shuffle([answer].concat(shuffle(distractors).slice(0, optionCount - 1)))
+    answer: key,
+    options: shuffle([key].concat(shuffle(distractors).slice(0, optionCount - 1)))
   };
 }
 

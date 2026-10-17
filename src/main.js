@@ -14,5 +14,6 @@ if (!app) {
 
 const router = createRouter(app);
 
-window.addEventListener("hashchange", router.renderRoute);
+// Only navigation after load moves focus; the first render keeps the browser default.
+window.addEventListener("hashchange", () => router.renderRoute({ moveFocus: true }));
 router.renderRoute();

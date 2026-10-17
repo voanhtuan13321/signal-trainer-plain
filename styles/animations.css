@@ -1,7 +1,20 @@
+/* Sprite-style motion: everything steps instead of easing. */
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* steps(10) makes the cloud hop between frames like a sprite sheet. */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(8px);
   }
 
   to {
@@ -10,111 +23,45 @@
   }
 }
 
-@keyframes section-enter {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes card-flash {
+  0%, 40% { --edge: var(--warn); }
+  100% { --edge: var(--edge-soft); }
 }
 
-.page-enter {
-  animation: page-enter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+@keyframes skeleton-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
-.nav a,
-.card,
-.button,
-.tab,
-.option {
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    opacity 180ms ease,
-    filter 180ms ease;
-}
-
-.card:hover,
-.button:hover,
-.option:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.nav a:active,
-.button:active,
-.tab:active,
-.option:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.card:hover {
-  border-color: var(--border-strong);
-  box-shadow:
-    var(--inner-glow),
-    var(--shadow-hover),
-    0 0 32px rgba(123, 77, 255, 0.12);
-}
-
-.button:hover {
-  box-shadow:
-    0 14px 28px var(--primary-glow),
-    0 0 30px var(--secondary-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
-  filter: brightness(1.05);
-}
-
-.button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-  transform: none;
-  filter: none;
-}
-
-.button--secondary:hover,
-.button--ghost:hover {
-  box-shadow: var(--inner-glow), var(--shadow-hover);
-}
-
-.option:hover:not(:disabled) {
-  border-color: var(--border-strong);
-  box-shadow:
-    var(--inner-glow),
-    var(--shadow-hover),
-    0 0 22px rgba(123, 77, 255, 0.12);
-}
-
-.tab.is-active,
-.tab:hover {
-  box-shadow:
-    inset 0 0 0 1px var(--border-strong),
-    0 10px 20px rgba(123, 77, 255, 0.18);
-}
-
+.page-enter,
 .tab-panel {
-  animation: section-enter 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: page-enter 240ms steps(4);
+}
+
+.alphabet-card.is-flash {
+  animation: card-flash 1.2s steps(6) 1;
+}
+
+.cloud {
+  animation: float 4s steps(10) infinite;
+}
+
+.cursor {
+  animation: blink 1s steps(1) infinite;
+}
+
+.insert-coin {
+  animation: blink 1.2s steps(1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .page-enter,
-  .tab-panel {
-    animation: none;
-  }
-
-  .nav a,
-  .card,
-  .button,
-  .tab,
-  .option {
-    transition: none;
-  }
-
+  .tab-panel,
+  .alphabet-card.is-flash,
+  .cloud,
+  .cursor,
+  .insert-coin,
+  .restart-dialog .eyebrow::after,
   .skeleton-block::after {
     animation: none;
   }

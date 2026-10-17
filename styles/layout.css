@@ -1,103 +1,71 @@
 .app-shell {
   position: relative;
-  z-index: 1;
-  width: min(calc(100% - 24px), var(--content-width));
+  width: min(calc(100% - 40px), var(--content-width));
   margin: 0 auto;
 }
 
 .topbar {
-  display: grid;
-  gap: var(--space-4);
-  padding: 18px 0 12px;
-}
-
-.topbar__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  padding: 20px 0 12px;
 }
 
 .main {
-  min-height: calc(100vh - 188px);
-  padding: var(--space-4) 0 calc(var(--bottom-nav-space) + var(--space-6));
+  min-height: calc(100vh - 120px);
+  padding: var(--space-4) 0 calc(var(--bottom-nav-space) + var(--space-5));
 }
 
 html { scroll-padding-bottom: var(--bottom-nav-space); }
 
-/* Home and practice are single-screen flows on mobile. The fixed nav already
-   reserves its own viewport space, so these routes must not add a second page
-   scroll area through the main min-height calculation. */
-body.route-home,
-body.route-practice {
-  min-height: 100svh;
-  padding-bottom: 0;
-  overflow-x: hidden;
-}
-
-body.route-home .app-shell,
-body.route-practice .app-shell {
-  min-height: 100svh;
-}
-
-body.route-home .main,
-body.route-practice .main {
-  min-height: 0;
-}
-
-.hero {
-  display: grid;
-  gap: var(--space-4);
-  align-items: stretch;
-  min-height: auto;
-}
-
-.hero__content {
-  position: relative;
-  overflow: hidden;
-  padding: 28px 18px 24px;
-}
-
-.hero__content::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at top right, var(--secondary-glow), transparent 32%),
-    radial-gradient(circle at left bottom, var(--primary-glow), transparent 36%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 46%);
-  pointer-events: none;
-}
-
-.hero__content > * {
-  position: relative;
-  z-index: 1;
-}
-
-.section {
-  margin-top: var(--space-6);
-}
+/* The container is only focused programmatically after navigation. */
+.main:focus { outline: none; }
 
 .section__header {
   display: grid;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.section__header h1,
+.section__header p {
+  margin-bottom: 0;
 }
 
 .grid {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5) var(--space-4);
 }
 
 .grid--alphabet {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
+/* Quiz screens read best as one centred column, even on wide screens. */
 .practice-layout {
   display: grid;
-  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.home {
+  display: grid;
   gap: var(--space-4);
-  align-items: start;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.home h1,
+.home .eyebrow {
+  margin-bottom: 0;
+}
+
+.path-cards {
+  display: grid;
+  gap: var(--space-5);
 }
 
 @media (min-width: 700px) {
@@ -106,27 +74,15 @@ body.route-practice .main {
     --bottom-nav-space: 0px;
   }
 
-  body {
-    padding-bottom: 32px;
-  }
-
   .topbar {
-    gap: var(--space-3);
+    padding: 24px 0 16px;
   }
 
   .main {
     padding-bottom: var(--space-6);
   }
 
-  .practice-layout {
-    grid-template-columns: 1fr 280px;
-  }
-
-  .hero__content {
-    padding: 48px;
-  }
-
-  .grid--alphabet {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .section__header {
+    margin-bottom: var(--space-6);
   }
 }

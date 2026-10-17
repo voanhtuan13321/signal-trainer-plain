@@ -4,16 +4,16 @@
 
 - Confirm the app opens and the main flows still work
 - Check GitHub Pages link still loads
-- Update `src/data/app-meta.js`
-- Update `src/data/app-meta.js` app metadata
+- Update `src/data/app-meta.js` (version and release date)
+- Run `npm test`
 - Move notes from `Unreleased` to a new version block in `CHANGELOG.md`
 - Review `README.md` if setup or links changed
 
 ## Tagging
 
 - Run `git status`
-- Commit release files with a message like `release: v0.1.0`
-- Create a tag like `signal-trainer-plain-v0.1.0`
+- Commit release files with a message like `release: vX.Y.Z`
+- Create a tag like `signal-trainer-plain-vX.Y.Z`
 - Push `main`
 - Push the tag
 
